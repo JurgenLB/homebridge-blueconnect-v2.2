@@ -12,12 +12,13 @@
     "homebridge-plugin"
   ],
   "engines": {
-    "node": "^18.20.4 || ^20.15.1",
-    "homebridge": "^1.6.0 || ^2.0.0-beta.0"
+    "node": "^18.20.4 || ^20.16.0 || ^22.6.0",
+    "homebridge": "^1.8.0 || ^2.0.0-beta.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint src/**.js --max-warnings=0 --fix"
+    "build": "rimraf ./dist && tsc",
+    "lint": "eslint . --max-warnings=0",
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "dependencies": {
     "aws-api-gateway-client": "0.3.7"
@@ -26,11 +27,18 @@
     "url": "https://github.com/taurgis/homebridge-blueconnect-v2/issues"
   },
   "homepage": "https://github.com/taurgis/homebridge-blueconnect-v2#readme",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "author": "Taurgis",
   "devDependencies": {
-    "@eslint/js": "8.57.0",
-    "eslint": "8.57.0",
-    "globals": "^15.9.0"
+    "@eslint/js": "^9.9.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.2.0",
+    "eslint": "^9.9.0",
+    "homebridge": "^2.0.0-beta.0",
+    "nodemon": "^3.1.4",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.1"
   }
 }

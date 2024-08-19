@@ -1,0 +1,16 @@
+{
+  "pluginAlias": "BlueRiiot",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true,
+        "default": "BlueRiiot"
+      }
+    }
+  }
+}
