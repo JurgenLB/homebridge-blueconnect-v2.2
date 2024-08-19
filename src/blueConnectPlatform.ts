@@ -4,6 +4,7 @@ import { PoolAccessory } from './poolAccessory.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 
 import { BlueriiotAPI } from './api/blueriiot-api.js';
+import { WeatherAccessory } from './weatherAccessory';
 
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
@@ -83,9 +84,41 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
 
                 new PoolAccessory(this, accessory);
 
+
                 this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+
               }
             });
+
+            if(this.config.weather) {
+              const uuid = this.api.hap.uuid.generate('weather-' + poolId.substring(0, 10));
+              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+              if (existingAccessory) {
+                this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+
+                new WeatherAccessory(this, existingAccessory);
+              } else {
+                this.log.info('Adding new accessory:', 'weather-' + poolId.substring(0, 10));
+
+                const accessory = new this.api.platformAccessory('weather-' + poolId, uuid);
+
+                accessory.context.device = { swimming_pool_id: poolId };
+
+                new WeatherAccessory(this, accessory);
+
+                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+              }
+            } else {
+              // Clean up the weather accessory if it exists
+              const uuid = this.api.hap.uuid.generate('weather-' + poolId.substring(0, 10));
+              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+              if (existingAccessory) {
+                this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+              }
+            }
           });
         });
       }).catch((error : Error) =>{

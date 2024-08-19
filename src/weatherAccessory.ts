@@ -1,9 +1,7 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 
-
-
-export class PoolAccessory {
+export class WeatherAccessory {
   private service: Service | null = null;
 
   /**
@@ -16,24 +14,21 @@ export class PoolAccessory {
         private readonly platform: BlueConnectPlatform,
         private readonly accessory: PlatformAccessory,
   ) {
-    this.getCurrentTemperature().then(() => {
+    this.getWeatherTemperature().then(() => {
             // set accessory information
             this.accessory.getService(this.platform.Service.AccessoryInformation)!
-              .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
-              .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
-              .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
-              .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
+              .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
 
             this.service = this.accessory.getService(
               this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
             );
 
-            this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
+            this.service.setCharacteristic(this.platform.Characteristic.Name, 'Current Weather Temperature');
             this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
 
             setInterval(() => {
-              this.getCurrentTemperature().catch((error) => {
+              this.getWeatherTemperature().catch((error) => {
                 this.platform.log.error('Error getting current temperature: ' + error);
               });
             }, 60000 * 30);
@@ -47,29 +42,29 @@ export class PoolAccessory {
     return this.currentTemperature;
   }
 
-  async getCurrentTemperature() {
+  async getWeatherTemperature() {
     this.platform.log.debug(
-      'Getting current temperature for ' +
+      'Getting weather temperature for ' +
         this.accessory.context.device.blue_device_serial +
         ' and pool ' +
         this.accessory.context.device.swimming_pool_id,
     );
 
     try {
-      const lastMeasurementString = await this.platform.blueRiotAPI.getLastMeasurements(
+      const weatherString = await this.platform.blueRiotAPI.getWeather(
         this.accessory.context.device.swimming_pool_id,
-        this.accessory.context.device.blue_device_serial,
+        'en',
       );
 
-      this.platform.log.debug('Last measurement: ' + lastMeasurementString);
+      this.platform.log.debug('Current Weather: ' + weatherString);
 
-      const lastMeasurement = JSON.parse(lastMeasurementString);
+      const weather = JSON.parse(weatherString);
 
-      this.currentTemperature = lastMeasurement.data[0].value;
+      this.currentTemperature = weather.data.temperature_current;
 
-      this.platform.log.debug('Current temperature: ' + this.currentTemperature);
+      this.platform.log.debug('Weather temperature: ' + this.currentTemperature);
     } catch (error) {
-      this.platform.log.error('Error getting last measurement: ' + error);
+      this.platform.log.error('Error getting weather: ' + error);
     }
   }
 }

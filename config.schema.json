@@ -20,6 +20,11 @@
             "title": "Password",
             "type": "string",
             "required": true
+        },
+        "weather": {
+          "title": "Expose Current Weather Temperature as a Sensor",
+          "type": "boolean",
+          "required": false
         }
     }
   }
