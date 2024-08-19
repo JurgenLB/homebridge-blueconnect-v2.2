@@ -6,4 +6,5 @@ export const PLATFORM_NAME = 'BlueRiiot';
 /**
  * This must match the name of your plugin as defined the package.json
  */
-export const PLUGIN_NAME = 'homebridge-blueconnect';
+export const PLUGIN_NAME = 'homebridge-blueconnect-v2';
+

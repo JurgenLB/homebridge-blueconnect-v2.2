@@ -17,8 +17,9 @@
   },
   "scripts": {
     "build": "rimraf ./dist && tsc",
-    "lint": "eslint . --max-warnings=0",
-    "prepublishOnly": "npm run lint && npm run build"
+    "lint": "eslint src --max-warnings=0",
+    "prepublishOnly": "npm run lint && npm run build",
+    "watch": "npm run build && npm link && nodemon"
   },
   "dependencies": {
     "aws-api-gateway-client": "0.3.7"
