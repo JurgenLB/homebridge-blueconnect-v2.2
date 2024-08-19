@@ -1,7 +1,7 @@
 {
   "displayName": "BlueConnect",
   "name": "homebridge-blueconnect-v2",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Add your BlueRiiot smart pool device to homebridge",
   "license": "Apache-2.0",
   "repository": {
