@@ -1,19 +1,15 @@
 
 <p align="center">
-
-<img src="https://0g.citymesh.com/files/Blog/Riiot-Labs/_1400xAUTO_fit_center-center_100/blueriiot-logo.png" width="150">
-
+ <a href="https://github.com/taurgis/homebridge-blueconnect-v2"><img alt="Homebridge iRobot" src="https://user-images.githubusercontent.com/75853497/143301930-e2f3bc9a-9f0d-4e03-95f8-c69769712ca5.png" width="600px"></a>
 </p>
 
+# homebridge-blueconnect-v2
 
-# Homebridge Plugin - Blue Connect
-
-Homebridge plugin for BlueRiiot devices.
-It reads the Swimming pool temperature, using the BlueConnect account to retreive Temperature, sent to the Blueriiot cloud by the Device.
+Homebridge plugin for BlueRiiot devices. It reads the Swimming pool temperature, using the BlueConnect account to retrieve Temperature, sent to the Blueriiot cloud by the Device.
 
 ## Installation
 
-npm install VanAxl/homebridge-blueconnect
+npm install taurgis/homebridge-blueconnect-v2
 
 ## Configurations
 
@@ -27,9 +23,7 @@ The configuration parameters need to be added to `accessories` section of the Ho
                     "accessory": "BlueRiiot",
                     "name": "XXX",
                     "email": "XXX@XXX.XXX",
-                    "password": "XXX",
-                    "swimmingpoolid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-                    "bluedeviceserial": "00000000"
+                    "password": "XXX"
                 }
             ]
     ...
@@ -42,7 +36,3 @@ The configuration parameters need to be added to `accessories` section of the Ho
 * `accessory ` is required, with `BlueRiiot` value.  
 * `name` (required) is anything you'd like to use to identify this device. You can always change the name from within the Home app.
 * `email` and `password` (required) are the credentials you use in the BlueConnect app.
-
-To Get the value in config section for : the <i>Swimming Pool ID</i> and the <i>BlueDevice ID</i>.
-=> for the moment, if these parameters are not written in the config file, these IDs will be displayed in the homebridge log console during homebridge startup, so you can copy/paste it in the config section.
-
