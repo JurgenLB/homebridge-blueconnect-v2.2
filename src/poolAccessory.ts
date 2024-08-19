@@ -71,8 +71,6 @@ export class PoolAccessory {
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + error);
     }
-
-
   }
 
 }

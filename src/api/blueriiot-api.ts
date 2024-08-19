@@ -63,11 +63,11 @@ export class BlueriiotAPI {
     }
 
     const cred = this.token.credentials;
-    // Check if expired and refresh if needed
-    const now = new Date().getTime();
+
+    const now = new Date().getTime() + (5 * 60 * 1000); // 5 minutes in the future
     const expire = Date.parse(this.token.credentials.expiration);
 
-    if (expire > now) {
+    if (now >= expire) {
       await this.getToken();
     }
 
