@@ -1,6 +1,6 @@
 
 <p align="center">
- <a href="https://github.com/taurgis/homebridge-blueconnect-v2"><img alt="Homebridge iRobot" src="https://user-images.githubusercontent.com/75853497/143301930-e2f3bc9a-9f0d-4e03-95f8-c69769712ca5.png" width="600px"></a>
+ <a href="https://github.com/taurgis/homebridge-blueconnect-v2"><img alt="Homebridge iRobot" src="https://github.com/user-attachments/assets/7612a519-e5ad-487c-a815-c22158ee7550" width="600px"></a>
 </p>
 
 # homebridge-blueconnect-v2
