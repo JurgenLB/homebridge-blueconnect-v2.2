@@ -62,13 +62,15 @@ export class BlueriiotAPI {
       throw new Error('You need to init api first!');
     }
 
-    const cred = this.token.credentials;
+    let cred = this.token.credentials;
 
     const now = new Date().getTime() + (5 * 60 * 1000); // 5 minutes in the future
     const expire = Date.parse(this.token.credentials.expiration);
 
     if (now >= expire) {
       await this.getToken();
+
+      cred = this.token.credentials;
     }
 
     const apiClient = apiClientFactory.newClient({
