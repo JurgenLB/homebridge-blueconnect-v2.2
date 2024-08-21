@@ -2,10 +2,10 @@ name: Build and Lint
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ master, develop ]
     paths: [ src/**, .github/workflows/build.yml ]
   pull_request:
-    branches: [ develop ]
+    branches: [ master, develop ]
     paths: [ src/** ]
   workflow_dispatch:
 
