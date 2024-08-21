@@ -44,7 +44,11 @@ export class PoolAccessory {
      * Handle requests to get the current value of the "Current Temperature" characteristic
      */
   async handleCurrentTemperatureGet(): Promise<CharacteristicValue> {
-    return this.currentTemperature;
+    if(this.platform.blueRiotAPI.isAuthenticated()) {
+      return this.currentTemperature;
+    } else {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
   }
 
   async getCurrentTemperature() {
