@@ -9,7 +9,12 @@ const BASE_HEADERS = {
   'Accept-Language': 'en-DK;q=1.0, da-DK;q=0.9',
   'Accept': '**',
 };
+
 const BASE_URL = 'https://api.riiotlabs.com/prod/';
+
+const ERROR_MESSAGES = {
+  'NOT_INITIALIZED': 'You have not authenticated yet, please authenticate first.',
+};
 
 export class BlueriiotAPI {
   token : BlueToken | null;
@@ -57,9 +62,10 @@ export class BlueriiotAPI {
     pathParams : unknown,
     pathTemplate : string,
     queryParams : unknown,
+    retry: boolean = false,
   ) => {
     if(this.token === null) {
-      throw new Error('You need to init the API first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
 
     let cred = this.token?.credentials;
@@ -73,26 +79,34 @@ export class BlueriiotAPI {
       cred = this.token?.credentials;
     }
 
-    const apiClient = apiClientFactory.newClient({
-      invokeUrl: BASE_URL,
-      region: AWS_REGION,
-      accessKey: cred.access_key,
-      secretKey: cred.secret_key,
-      sessionToken: cred.session_token,
-    });
+    try {
+      const apiClient = apiClientFactory.newClient({
+        invokeUrl: BASE_URL,
+        region: AWS_REGION,
+        accessKey: cred.access_key,
+        secretKey: cred.secret_key,
+        sessionToken: cred.session_token,
+      });
 
-    const method = 'GET';
-    const additionalParams = {
-      headers: BASE_HEADERS,
-      queryParams: queryParams,
-    };
-    const body = {
-    };
+      const method = 'GET';
+      const additionalParams = {
+        headers: BASE_HEADERS,
+        queryParams: queryParams,
+      };
+      const body = {};
 
-    const response = await apiClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body);
-    const data = response.data;
+      const response = await apiClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body);
+      const data = response.data;
 
-    return JSON.stringify(data);
+      return JSON.stringify(data);
+    } catch (error) {
+      if (retry) {
+        throw new Error('Failed to get data from API: ' + error);
+      } else {
+        await this.getToken();
+        return await this.getData(pathParams, pathTemplate, queryParams, true);
+      }
+    }
   };
 
   isAuthenticated = () => {
@@ -106,7 +120,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, '');
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -121,7 +135,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, '');
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -132,7 +146,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, '');
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -145,7 +159,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, '');
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -159,7 +173,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, '');
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -172,7 +186,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, '');
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -188,7 +202,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, queryParams);
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -205,7 +219,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, queryParams);
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -222,7 +236,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, queryParams);
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -238,7 +252,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, queryParams);
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -252,7 +266,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, queryParams);
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -268,7 +282,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, queryParams);
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
 
@@ -281,8 +295,7 @@ export class BlueriiotAPI {
 
       return await this.getData(pathParams, pathTemplate, '');
     } else {
-      throw new Error('You need to init api first!');
+      throw new Error(ERROR_MESSAGES.NOT_INITIALIZED);
     }
   };
-
 }

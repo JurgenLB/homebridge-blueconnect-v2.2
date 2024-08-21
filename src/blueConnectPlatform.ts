@@ -49,8 +49,13 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
       return;
     }
 
-    //Init the BlueConnect api
     this.blueRiotAPI.init(this.config.email, this.config.password).then(() =>{
+      if(!this.blueRiotAPI.isAuthenticated()) {
+        this.log.warn('BlueConnect: Unable to authenticate. Did you provide the correct email and password?');
+
+        return;
+      }
+
       this.log.info('BlueConnect: Logged in successfully');
 
       this.blueRiotAPI.getSwimmingPools().then((poolData) =>{
@@ -68,57 +73,10 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
             this.log.info('BlueConnect: Found ' + blueDevices.length + ' devices');
 
             blueDevices.forEach((blueDevice : { blue_device_serial : string }) => {
-              const uuid = this.api.hap.uuid.generate(blueDevice.blue_device_serial);
-              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-              if (existingAccessory) {
-                this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-
-                new PoolAccessory(this, existingAccessory);
-              } else {
-                this.log.info('Adding new accessory:', blueDevice.blue_device_serial);
-
-                const accessory = new this.api.platformAccessory(blueDevice.blue_device_serial, uuid);
-
-                accessory.context.device = blueDevice;
-
-                new PoolAccessory(this, accessory);
-
-
-                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-
-              }
+              this.processBlueDevice(blueDevice);
             });
 
-            if(this.config.weather) {
-              const uuid = this.api.hap.uuid.generate('weather-' + poolId.substring(0, 10));
-              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-              if (existingAccessory) {
-                this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-
-                new WeatherAccessory(this, existingAccessory);
-              } else {
-                this.log.info('Adding new accessory:', 'weather-' + poolId.substring(0, 10));
-
-                const accessory = new this.api.platformAccessory('weather-' + poolId, uuid);
-
-                accessory.context.device = { swimming_pool_id: poolId };
-
-                new WeatherAccessory(this, accessory);
-
-                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-              }
-            } else {
-              // Clean up the weather accessory if it exists
-              const uuid = this.api.hap.uuid.generate('weather-' + poolId.substring(0, 10));
-              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-              if (existingAccessory) {
-                this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-              }
-            }
+            this.processWeatherAccessory(poolId);
           });
         });
       }).catch((error : Error) =>{
@@ -127,5 +85,58 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }).catch( (error) =>{
       this.log.warn('We have issues signing in: ' + error);
     });
+  }
+
+  private processWeatherAccessory(poolId: string) {
+    if (this.config.weather) {
+      const uuid = this.api.hap.uuid.generate('weather-' + poolId.substring(0, 10));
+      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+      if (existingAccessory) {
+        this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+
+        new WeatherAccessory(this, existingAccessory);
+      } else {
+        this.log.info('Adding new accessory:', 'weather-' + poolId.substring(0, 10));
+
+        const accessory = new this.api.platformAccessory('weather-' + poolId, uuid);
+
+        accessory.context.device = { swimming_pool_id: poolId };
+
+        new WeatherAccessory(this, accessory);
+
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      }
+    } else {
+      // Clean up the weather accessory if it exists
+      const uuid = this.api.hap.uuid.generate('weather-' + poolId.substring(0, 10));
+      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+      if (existingAccessory) {
+        this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+      }
+    }
+  }
+
+  private processBlueDevice(blueDevice: { blue_device_serial: string }) {
+    const uuid = this.api.hap.uuid.generate(blueDevice.blue_device_serial);
+    const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+    if (existingAccessory) {
+      this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+
+      new PoolAccessory(this, existingAccessory);
+    } else {
+      this.log.info('Adding new accessory:', blueDevice.blue_device_serial);
+
+      const accessory = new this.api.platformAccessory(blueDevice.blue_device_serial, uuid);
+
+      accessory.context.device = blueDevice;
+
+      new PoolAccessory(this, accessory);
+
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    }
   }
 }
