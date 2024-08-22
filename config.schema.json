@@ -25,7 +25,13 @@
           "title": "Expose Current Weather Temperature as a Sensor",
           "type": "boolean",
           "required": false
-        }
+        },
+      "refreshInterval": {
+        "title": "Refresh Interval (Minutes)",
+        "type": "number",
+        "required": true,
+        "default": 30
+      }
     }
   }
 }

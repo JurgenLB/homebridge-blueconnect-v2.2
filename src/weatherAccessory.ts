@@ -31,7 +31,7 @@ export class WeatherAccessory {
               this.getWeatherTemperature().catch((error) => {
                 this.platform.log.error('Error getting current temperature: ' + error);
               });
-            }, 60000 * 30);
+            }, 60000 * (this.platform.config.refreshInterval || 30) );
     });
   }
 

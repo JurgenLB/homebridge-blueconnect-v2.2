@@ -31,12 +31,12 @@ export class PoolAccessory {
             this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
             this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
-
+            
             setInterval(() => {
               this.getCurrentTemperature().catch((error) => {
                 this.platform.log.error('Error getting current temperature: ' + error);
               });
-            }, 60000 * 30);
+            }, 60000 * (this.platform.config.refreshInterval || 30) );
     });
   }
 
