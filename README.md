@@ -5,7 +5,11 @@
 
 # homebridge-blueconnect-v2
 
-Homebridge plugin for BlueRiiot devices. It reads the Swimming pool temperature, using the BlueConnect account to retrieve Temperature, sent to the Blueriiot cloud by the Device.
+This is a plugin for BlueRiiot devices. It reads the swimming pool temperature using the BlueConnect account to retrieve it, which the device sends to the BlueRiiot cloud.
+
+## Weather
+
+Since the service also provides weather information for the pool's location, an optional accessory can display the current temperature for weather-based automation.
 
 ## Installation
 
@@ -13,18 +17,18 @@ npm install taurgis/homebridge-blueconnect-v2
 
 ## Configurations
 
-The configuration parameters need to be added to `accessories` section of the Homebridge configuration file.
+The configuration parameters need to be added to `platforms` section of the Homebridge configuration file.
 
 ```json5
 {
     ...
-            "accessories": [
-                {
-                    "accessory": "BlueRiiot",
-                    "name": "XXX",
-                    "email": "XXX@XXX.XXX",
-                    "password": "XXX"
-                }
+            "platforms": [
+                 {
+                     "name": "BlueRiiot",
+                     "email": "xxxxxx",
+                     "password": "xxxxxx",
+                     "platform": "BlueRiiot"
+                 }
             ]
     ...
 }
@@ -33,6 +37,6 @@ The configuration parameters need to be added to `accessories` section of the Ho
 
 #### Parameters
 
-* `accessory ` is required, with `BlueRiiot` value.  
+* `platform` is required, with `BlueRiiot` value.  
 * `name` (required) is anything you'd like to use to identify this device. You can always change the name from within the Home app.
-* `email` and `password` (required) are the credentials you use in the BlueConnect app.
+* `email` and `password` (required) are your credentials in the BlueConnect app.
