@@ -1,10 +1,9 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-
-
 
 export class PoolAccessory {
   private service: Service | null = null;
+  private loggingService: { addEntry: (entry: { time: number; temp: number }) => void };
 
   /**
      * These are just used to create a working example
@@ -14,8 +13,11 @@ export class PoolAccessory {
 
   constructor(
         private readonly platform: BlueConnectPlatform,
-        private readonly accessory: PlatformAccessory,
+        private readonly accessory: PlatformAccessory & { log?: Logging },
   ) {
+    this.accessory.log = this.platform.log;
+    this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
+
     this.getCurrentTemperature().then(() => {
             // set accessory information
             this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -31,7 +33,7 @@ export class PoolAccessory {
             this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
             this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
-            
+
             setInterval(() => {
               this.getCurrentTemperature().catch((error) => {
                 this.platform.log.error('Error getting current temperature: ' + error);
@@ -70,6 +72,8 @@ export class PoolAccessory {
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
       this.currentTemperature = lastMeasurement.data[0].value;
+
+      this.loggingService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.currentTemperature });
 
       this.platform.log.debug('Current temperature: ' + this.currentTemperature);
     } catch (error) {

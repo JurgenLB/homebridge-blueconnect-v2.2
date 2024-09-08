@@ -1,7 +1,7 @@
 {
   "displayName": "BlueConnect",
   "name": "homebridge-blueconnect-v2",
-  "version": "1.0.1",
+  "version": "1.0.2-alpha.2",
   "description": "Add your BlueRiiot smart pool device to homebridge",
   "license": "Apache-2.0",
   "repository": {
@@ -22,7 +22,8 @@
     "watch": "npm run build && npm link && nodemon"
   },
   "dependencies": {
-    "aws-api-gateway-client": "0.3.7"
+    "aws-api-gateway-client": "0.3.7",
+    "fakegato-history": "^0.6.5"
   },
   "bugs": {
     "url": "https://github.com/taurgis/homebridge-blueconnect-v2/issues"

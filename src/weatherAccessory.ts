@@ -1,8 +1,9 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 
 export class WeatherAccessory {
   private service: Service | null = null;
+  private loggingService: { addEntry: (entry: { time: number; temp: number }) => void };
 
   /**
      * These are just used to create a working example
@@ -12,8 +13,12 @@ export class WeatherAccessory {
 
   constructor(
         private readonly platform: BlueConnectPlatform,
-        private readonly accessory: PlatformAccessory,
+        private readonly accessory: PlatformAccessory & { log?: Logging },
   ) {
+
+    this.accessory.log = this.platform.log;
+    this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
+
     this.getWeatherTemperature().then(() => {
             // set accessory information
             this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -63,6 +68,8 @@ export class WeatherAccessory {
       const weather = JSON.parse(weatherString);
 
       this.currentTemperature = weather.data.temperature_current;
+
+      this.loggingService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.currentTemperature });
 
       this.platform.log.debug('Weather temperature: ' + this.currentTemperature);
     } catch (error) {
