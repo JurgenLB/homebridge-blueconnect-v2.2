@@ -1,15 +1,14 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
+import { attachCustomORPCharacteristic } from './characteristics/ORP';
 
 export class PoolAccessory {
   private service: Service | null = null;
-  private loggingService: { addEntry: (entry: { time: number; temp: number }) => void };
+  private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
 
-  /**
-     * These are just used to create a working example
-     * You should implement your own code to track the state of your accessory
-     */
   private currentTemperature = 25;
+  private currentORP = 750;
+  private currentPH = 0;
 
   constructor(
         private readonly platform: BlueConnectPlatform,
@@ -18,7 +17,7 @@ export class PoolAccessory {
     this.accessory.log = this.platform.log;
     this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
 
-    this.getCurrentTemperature().then(() => {
+    this.getPoolData().then(() => {
             // set accessory information
             this.accessory.getService(this.platform.Service.AccessoryInformation)!
               .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
@@ -33,18 +32,24 @@ export class PoolAccessory {
             this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
             this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
+            this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+              .onGet(this.handleCurrentPHGet.bind(this));
+
+            attachCustomORPCharacteristic(this.service, this.platform.api)
+              .onGet(this.handleCurrentORPGet.bind(this));
+
 
             setInterval(() => {
-              this.getCurrentTemperature().catch((error) => {
-                this.platform.log.error('Error getting current temperature: ' + error);
+              this.getPoolData().catch((error) => {
+                this.platform.log.error('Error getting current pool data: ' + error);
               });
             }, 60000 * (this.platform.config.refreshInterval || 30) );
     });
   }
 
   /**
-     * Handle requests to get the current value of the "Current Temperature" characteristic
-     */
+   * Handle requests to get the current value of the "Current Temperature" characteristic
+   */
   async handleCurrentTemperatureGet(): Promise<CharacteristicValue> {
     if(this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentTemperature;
@@ -53,7 +58,29 @@ export class PoolAccessory {
     }
   }
 
-  async getCurrentTemperature() {
+  /**
+   * Handle requests to get the current value of the "Current PH" characteristic
+   */
+  async handleCurrentPHGet(): Promise<CharacteristicValue> {
+    if (this.platform.blueRiotAPI.isAuthenticated()) {
+      return this.currentPH * 10;
+    } else {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+  }
+
+  /**
+     * Handle requests to get the current value of the "Current ORP" characteristic
+     */
+  async handleCurrentORPGet(): Promise<CharacteristicValue> {
+    if (this.platform.blueRiotAPI.isAuthenticated()) {
+      return this.currentORP;
+    } else {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+  }
+
+  async getPoolData() {
     this.platform.log.debug(
       'Getting current temperature for ' +
         this.accessory.context.device.blue_device_serial +
@@ -71,11 +98,20 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
-      this.currentTemperature = lastMeasurement.data[0].value;
+      this.currentTemperature = lastMeasurement.data.find((element: { name: string }) => element.name === 'temperature').value;
+      this.currentORP = lastMeasurement.data.find((element: { name: string }) => element.name === 'orp').value;
+      this.currentPH = lastMeasurement.data.find((element: { name: string }) => element.name === 'ph').value;
 
-      this.loggingService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.currentTemperature });
+      this.loggingService.addEntry({
+        time: Math.round(new Date().valueOf() / 1000),
+        temp: this.currentTemperature,
+        pressure: this.currentORP,
+        humidity: this.currentPH * 10,
+      });
 
       this.platform.log.debug('Current temperature: ' + this.currentTemperature);
+      this.platform.log.debug('Current ORP: ' + this.currentORP);
+      this.platform.log.debug('Current pH: ' + this.currentPH);
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + error);
     }
