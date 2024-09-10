@@ -1,5 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
+import { attachCustomORPCharacteristic } from './characteristics/ORP';
 
 export class PoolAccessory {
   private service: Service | null = null;
@@ -34,6 +35,8 @@ export class PoolAccessory {
             this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
               .onGet(this.handleCurrentPHGet.bind(this));
             this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+              .onGet(this.handleCurrentORPGet.bind(this));
+            attachCustomORPCharacteristic(this.service, this.platform.api)
               .onGet(this.handleCurrentORPGet.bind(this));
 
             setInterval(() => {
