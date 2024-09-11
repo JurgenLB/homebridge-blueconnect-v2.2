@@ -1,19 +1,12 @@
 
 import { API, Characteristic, Formats, Perms, Service } from 'homebridge';
 
-/**
- * Defines the display name of the characteristic.
- */
-const DISPLAY_NAME = 'ORP';
 
-/**
- * Defines the UUID of the characteristic.
- * @remarks You need to generate a new UUID for each characteristic.
- */
+const DISPLAY_NAME = 'ORP';
 const UUID = 'E863F10F-079E-48FF-8F27-9C2605A29F52';
 
 /**
- * Attaches the 'Custom Duration' characteristic to the service.
+ * Attaches the 'Custom ORP' characteristic to the service.
  * @param target The service to which the characteristic should be attached.
  * @param api The Homebridge {@link API} instance in use for the plug-in.
  * @returns The {@link Characteristic} instance.
@@ -32,8 +25,6 @@ export function attachCustomORPCharacteristic(target: Service, api: API): Charac
       minStep: 1,
       perms: [Perms.PAIRED_READ, Perms.NOTIFY],
     }));
-
-    result.value = 0;
   }
 
   return result;
