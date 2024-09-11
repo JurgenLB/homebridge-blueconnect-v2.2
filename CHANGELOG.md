@@ -1,3 +1,9 @@
+### 1.0.2
+
+- Expose pH as "humidity" on the pool accessory ( value x 10, e.g. 7.4 -> 74 )
+- Expose ORP as "air pressure" and "luminosity" on the pool accessory
+- Implemented "fakegato History Service" for all characteristics to view historical data in the Eve app
+
 ### 1.0.1
 - Made refresh interval configurable
 
