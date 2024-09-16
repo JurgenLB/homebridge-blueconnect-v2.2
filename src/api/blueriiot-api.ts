@@ -54,7 +54,7 @@ export class BlueriiotAPI {
       const blueCred = new BlueCredentials(cred.access_key, cred.secret_key, cred.session_token, cred.expiration);
       this.token = new BlueToken(data.identity_id, data.token, blueCred);
     } catch (resultLogin) {
-      this.token = null;
+      // Do nothing
     }
   };
 
