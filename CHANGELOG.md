@@ -1,3 +1,6 @@
+### 1.0.3
+- When a token refresh fails, do not automatically lock down the plugin
+
 ### 1.0.2
 
 - Expose pH as "humidity" on the pool accessory ( value x 10, e.g. 7.4 -> 74 )
