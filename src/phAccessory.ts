@@ -19,11 +19,10 @@ export class PhAccessory {
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
       // Use the custom pH Sensor service
-      this.service = this.accessory.getService(this.platform.Service.PhSensor)
-        || this.accessory.addService(this.platform.Service.PhSensor, 'pH Sensor');
-      const PhCharacteristic = this.platform.Characteristic.PH;
-      this.service.getCharacteristic(PhCharacteristic)
-        .onGet(this.handlePHGet.bind(this));
+      const service = this.accessory.getService(this.platform.Service.PhSensor)
+        || this.accessory.addService(this.platform.Service.PhSensor, 'Ph');
+      
+      service.getCharacteristic(this.platform.Characteristic.Ph)
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'pH');
 
