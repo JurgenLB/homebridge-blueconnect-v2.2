@@ -20,12 +20,10 @@ export class ConductivityAccessory {
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
       // Use the custom Conductivity Sensor service
-      this.service = this.accessory.getService(this.platform.Service.ConductivitySensor)
-         || this.accessory.addService(this.platform.Service.ConductivitySensor, 'Conductivity Sensor');
+      const service = this.accessory.getService(this.platform.Service.ConductivitySensor)
+        || this.accessory.addService(this.platform.Service.ConductivitySensor, 'Conductivity Sensor');
       
-      const ConductivityCharacteristic = this.platform.Characteristic.Conductivity;
-      this.service.getCharacteristic(ConductivityCharacteristic)
-        .onGet(this.handleCONDUCTIVITYGet.bind(this));
+      service.getCharacteristic(this.platform.Characteristic.Conductivity)
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'Conductivity');
 
