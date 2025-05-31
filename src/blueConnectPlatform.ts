@@ -24,6 +24,9 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
+    // Register custom characteristics before anything else
+    registerCustomCharacteristics(this.api);
+
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     this.fakeGatoHistoryService = require('fakegato-history')(this.api);
 
