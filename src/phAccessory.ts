@@ -22,7 +22,7 @@ export class PhAccessory {
       const service = this.accessory.getService(this.platform.Service.PhSensor)
         || this.accessory.addService(this.platform.Service.PhSensor, 'Ph');
       
-      service.getCharacteristic(this.platform.Characteristic.Ph)
+      service.getCharacteristic(this.platform.Characteristic.Ph);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'pH');
 
