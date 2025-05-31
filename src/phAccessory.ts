@@ -15,8 +15,9 @@ export class PhAccessory {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
 
-      this.service = this.accessory.getService(this.platform.Service.LightSensor)
-        || this.accessory.addService(this.platform.Service.LightSensor);
+      // Use the custom pH Sensor service
+      this.service = this.accessory.getService((this.platform.Service as any).PhSensor)
+        || this.accessory.addService((this.platform.Service as any).PhSensor, 'pH Sensor');
 
       const PhCharacteristic = (this.platform.Characteristic as any).PH;
       this.service.getCharacteristic(PhCharacteristic)

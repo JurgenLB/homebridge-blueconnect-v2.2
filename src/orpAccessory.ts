@@ -15,8 +15,9 @@ export class OrpAccessory {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
 
-      this.service = this.accessory.getService(this.platform.Service.LightSensor)
-        || this.accessory.addService(this.platform.Service.LightSensor);
+      // Use the custom ORP Sensor service
+      this.service = this.accessory.getService((this.platform.Service as any).OrpSensor)
+        || this.accessory.addService((this.platform.Service as any).OrpSensor, 'ORP Sensor');
 
       const OrpCharacteristic = (this.platform.Characteristic as any).ORP;
       this.service.getCharacteristic(OrpCharacteristic)
