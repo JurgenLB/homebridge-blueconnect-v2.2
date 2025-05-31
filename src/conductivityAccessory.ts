@@ -16,7 +16,7 @@ export class ConductivityAccessory {
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
 
       // Use the custom Conductivity Sensor service
-      this.service = = this.accessory.getService(this.platform.Service.ConductivitySensor)
+      this.service = this.accessory.getService(this.platform.Service.ConductivitySensor)
          || this.accessory.addService(this.platform.Service.ConductivitySensor, 'Conductivity Sensor');
       
       const ConductivityCharacteristic = this.platform.Characteristic.Conductivity;
