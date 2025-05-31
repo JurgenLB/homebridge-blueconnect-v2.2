@@ -17,7 +17,7 @@ export class CustomCharacteristics {
           minValue: 0,
           maxValue: 100_000,
           minStep: 1,
-          perms: [api.hap.Perms.READ, api.hap.Perms.NOTIFY],
+          perms: [api.hap.Perms.PAIRED_READ, api.hap.Perms.NOTIFY],
         });
         this.value = this.getDefaultValue();
       }
@@ -35,7 +35,7 @@ export class CustomCharacteristics {
           minValue: 0,
           maxValue: 14,
           minStep: 0.01,
-          perms: [api.hap.Perms.READ, api.hap.Perms.NOTIFY],
+          perms: [api.hap.Perms.PAIRED_READ, api.hap.Perms.NOTIFY],
         });
         this.value = this.getDefaultValue();
       }
@@ -53,7 +53,7 @@ export class CustomCharacteristics {
           minValue: 0,
           maxValue: 2000,
           minStep: 1,
-          perms: [api.hap.Perms.READ, api.hap.Perms.NOTIFY],
+          perms: [api.hap.Perms.PAIRED_READ, api.hap.Perms.NOTIFY],
         });
         this.value = this.getDefaultValue();
       }
