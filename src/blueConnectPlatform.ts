@@ -1,5 +1,5 @@
-import { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service} from 'homebridge';
-import { BlueConnectPlatform } from './blueConnectPlatform.js';
+import { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
+
 import { PhAccessory } from './phAccessory.js';
 import { OrpAccessory } from './orpAccessory.js';
 import { ConductivityAccessory } from './conductivityAccessory.js';
