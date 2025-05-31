@@ -14,6 +14,9 @@ export class PhAccessory {
     this.getPH().then(() => {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
+        .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
+        .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
+        .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
       // Use the custom pH Sensor service
       this.service = this.accessory.getService((this.platform.Service as { PH: Characteristic }).PhSensor)
