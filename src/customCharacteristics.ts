@@ -1,4 +1,4 @@
-import { API } from 'homebridge';
+import { API, Characteristic, Service } from 'homebridge';
 
 export class CustomCharacteristics {
   public ConductivityCharacteristic: typeof api.hap.Characteristic;
