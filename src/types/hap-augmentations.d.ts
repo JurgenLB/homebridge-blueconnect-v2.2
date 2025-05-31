@@ -1,4 +1,4 @@
-import 'homebridge';
+import { Characteristic, Service } from 'homebridge';
 
 declare module 'homebridge' {
   namespace hap {
