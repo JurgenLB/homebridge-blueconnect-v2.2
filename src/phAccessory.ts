@@ -1,0 +1,52 @@
+import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
+import type { BlueConnectPlatform } from './blueConnectPlatform.js';
+
+export class PhAccessory {
+  private service: Service | null = null;
+  private currentPH = 7;
+
+  constructor(
+    private readonly platform: BlueConnectPlatform,
+    private readonly accessory: PlatformAccessory & { log?: Logging },
+  ) {
+    this.accessory.log = this.platform.log;
+
+    this.getPH().then(() => {
+      this.accessory.getService(this.platform.Service.AccessoryInformation)!
+        .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
+
+      this.service = this.accessory.getService(this.platform.Service.LightSensor)
+        || this.accessory.addService(this.platform.Service.LightSensor);
+
+      const PhCharacteristic = (this.platform.Characteristic as any).PH;
+      this.service.getCharacteristic(PhCharacteristic)
+        .onGet(this.handlePHGet.bind(this));
+
+      this.service.setCharacteristic(this.platform.Characteristic.Name, 'pH');
+
+      setInterval(() => {
+        this.getPH().catch((error) => {
+          this.platform.log.error('Error getting pH: ' + error);
+        });
+      }, 60000 * (this.platform.config.refreshInterval || 30));
+    });
+  }
+
+  async handlePHGet(): Promise<CharacteristicValue> {
+    return this.currentPH;
+  }
+
+  async getPH() {
+    try {
+      const lastMeasurementString = await this.platform.blueRiotAPI.getLastMeasurements(
+        this.accessory.context.device.swimming_pool_id,
+        this.accessory.context.device.blue_device_serial,
+      );
+      const lastMeasurement = JSON.parse(lastMeasurementString);
+      this.currentPH = lastMeasurement.data.find((element: { name: string }) => element.name === 'ph')?.value ?? 0;
+      this.platform.log.debug(`Current pH: ${this.currentPH}`);
+    } catch (error) {
+      this.platform.log.error('Error getting pH: ' + error);
+    }
+  }
+}
