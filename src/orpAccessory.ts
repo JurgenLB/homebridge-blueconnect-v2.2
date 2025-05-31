@@ -22,7 +22,7 @@ export class OrpAccessory {
       const service = this.accessory.getService(this.platform.Service.OrpSensor)
         || this.accessory.addService(this.platform.Service.OrpSensor, 'ORP');
       
-      service.getCharacteristic(this.platform.Characteristic.Orp)
+      service.getCharacteristic(this.platform.Characteristic.Orp);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'ORP');
 
