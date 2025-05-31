@@ -1,6 +1,6 @@
-import { Characteristic } from 'homebridge';
+import { API } from 'homebridge';
 
-export function registerCustomCharacteristics(api: Characteristic) {
+export function registerCustomCharacteristics(api: API) {
   // Conductivity
   const CONDUCTIVITY_UUID = '00000001-0000-1000-8000-135D67EC4377';
   class ConductivityCharacteristic extends api.hap.Characteristic {
