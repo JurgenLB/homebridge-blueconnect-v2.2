@@ -19,7 +19,8 @@
     "allowJs": true,
   },
   "include": [
-    "src/"
+    "src/",
+    "src/api"
   ],
   "exclude": [
     "**/*.spec.ts"
