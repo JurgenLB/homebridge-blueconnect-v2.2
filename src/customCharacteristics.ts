@@ -1,4 +1,4 @@
-import { Service, Characteristic } from 'homebridge';
+import { Service, Characteristic, API } from 'homebridge';
 
 // --- Custom Characteristics ---
 // Conductivity
@@ -72,4 +72,15 @@ export class OrpSensorService extends api.hap.Service {
     super(displayName, OrpSensorService.UUID, subtype);
     this.addCharacteristic(OrpCharacteristic);
   }
+}
+
+// --- Registration Function ---
+export function registerCustomCharacteristicsAndServices(api: API) {
+  api.hap.Service.ConductivitySensor = ConductivitySensorService;
+  api.hap.Characteristic.Conductivity = ConductivityCharacteristic;
+  api.hap.Service.PhSensor = PhSensorService;
+  api.hap.Characteristic.Ph = PhCharacteristic;
+  api.hap.Service.OrpSensor = OrpSensorService;
+  api.hap.Characteristic.Orp = OrpCharacteristic;
+
 }
