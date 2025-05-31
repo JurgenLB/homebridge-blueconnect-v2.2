@@ -1,5 +1,7 @@
 import { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 import { CustomCharacteristics } from './customCharacteristics.js';
+import { registerCustomCharacteristicsAndServices } from './customCharacteristics';
+
 import { PhAccessory } from './phAccessory.js';
 import { OrpAccessory } from './orpAccessory.js';
 import { ConductivityAccessory } from './conductivityAccessory.js';
@@ -25,6 +27,8 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     // Register custom characteristics before anything else
+    this.api = api;
+    registerCustomCharacteristicsAndServices(api);
     new CustomCharacteristics(this.api);
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
