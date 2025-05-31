@@ -19,11 +19,10 @@ export class OrpAccessory {
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
       // Use the custom ORP Sensor service
-      this.service = this.accessory.getService(this.platform.Service.OrpSensor)
-        || this.accessory.addService(this.platform.Service.OrpSensor, 'ORP Sensor');
-      const OrpCharacteristic = this.platform.Characteristic.ORP;
-      this.service.getCharacteristic(OrpCharacteristic)
-        .onGet(this.handleORPGet.bind(this));
+      const service = this.accessory.getService(this.platform.Service.OrpSensor)
+        || this.accessory.addService(this.platform.Service.OrpSensor, 'ORP');
+      
+      service.getCharacteristic(this.platform.Characteristic.Orp)
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'ORP');
 
