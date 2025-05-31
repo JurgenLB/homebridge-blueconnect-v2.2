@@ -6,7 +6,7 @@ import { ConductivityAccessory } from './conductivityAccessory.js';
 import { WeatherAccessory } from './weatherAccessory.js';
 import { PoolAccessory } from './poolAccessory.js';
 import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
-import { BlueriiotAPI } from '../src/api/blueriiotAPI.js';
+import { BlueriiotAPI } from './src/api/blueriiotAPI.js';
 
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
