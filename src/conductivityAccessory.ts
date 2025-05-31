@@ -23,7 +23,7 @@ export class ConductivityAccessory {
       const service = this.accessory.getService(this.platform.Service.ConductivitySensor)
         || this.accessory.addService(this.platform.Service.ConductivitySensor, 'Conductivity Sensor');
       
-      service.getCharacteristic(this.platform.Characteristic.Conductivity)
+      service.getCharacteristic(this.platform.Characteristic.Conductivity);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'Conductivity');
 
