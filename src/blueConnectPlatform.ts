@@ -1,4 +1,4 @@
-import { API, Logging, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
+import { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service} from 'homebridge';
 import { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { PhAccessory } from './phAccessory.js';
 import { OrpAccessory } from './orpAccessory.js';
@@ -8,7 +8,7 @@ import { PoolAccessory } from './poolAccessory.js';
 import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
 import { BlueriiotAPI } from './blueriiotAPI.js';
 
-export class BlueConnectPlatformImpl {
+export class BlueConnectPlatform {
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
   public blueRiotAPI: BlueriiotAPI;
