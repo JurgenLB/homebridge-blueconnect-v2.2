@@ -7,7 +7,7 @@ import { PLATFORM_NAME } from './settings.js';
 /**
  * This method registers the platform with Homebridge
  */
-export function registerCustomCharacteristicsAndServices (api: API) => {
+export function registerCustomCharacteristicsAndServices (api: API) {
   api.registerPlatform(PLATFORM_NAME, BlueConnectPlatform);
   api.hap.Service.ConductivitySensor = ConductivitySensorService;
   api.hap.Characteristic.Conductivity = ConductivityCharacteristic;
