@@ -55,5 +55,40 @@ export function registerCustomCharacteristics(api: any) {
   }
   api.hap.Characteristic.ORP = OrpCharacteristic;
 
+  // --- Custom Services ---
+
+  // Conductivity Sensor Service
+  const CONDUCTIVITY_SENSOR_SERVICE_UUID = '00000005-0000-1000-8000-135D67EC4377';
+  class ConductivitySensorService extends api.hap.Service {
+    static readonly UUID: string = CONDUCTIVITY_SENSOR_SERVICE_UUID;
+    constructor(displayName: string, subtype?: string) {
+      super(displayName, CONDUCTIVITY_SENSOR_SERVICE_UUID, subtype);
+      this.addCharacteristic(api.hap.Characteristic.Conductivity);
+    }
+  }
+  api.hap.Service.ConductivitySensor = ConductivitySensorService;
+
+  // pH Sensor Service
+  const PH_SENSOR_SERVICE_UUID = '00000004-0000-1000-8000-135D67EC4377';
+  class PhSensorService extends api.hap.Service {
+    static readonly UUID: string = PH_SENSOR_SERVICE_UUID;
+    constructor(displayName: string, subtype?: string) {
+      super(displayName, PH_SENSOR_SERVICE_UUID, subtype);
+      this.addCharacteristic(api.hap.Characteristic.PH);
+    }
+  }
+  api.hap.Service.PhSensor = PhSensorService;
+
+  // ORP Sensor Service
+  const ORP_SENSOR_SERVICE_UUID = '00000006-0000-1000-8000-135D67EC4377';
+  class OrpSensorService extends api.hap.Service {
+    static readonly UUID: string = ORP_SENSOR_SERVICE_UUID;
+    constructor(displayName: string, subtype?: string) {
+      super(displayName, ORP_SENSOR_SERVICE_UUID, subtype);
+      this.addCharacteristic(api.hap.Characteristic.ORP);
+    }
+  }
+  api.hap.Service.OrpSensor = OrpSensorService;
+
   return { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
 }
