@@ -8,7 +8,7 @@ import { PoolAccessory } from './poolAccessory.js';
 import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
 import { BlueriiotAPI } from './blueriiotAPI.js';
 
-export class BlueConnectPlatform {
+export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
   public blueRiotAPI: BlueriiotAPI;
