@@ -19,7 +19,8 @@
     "allowJs": true,
   },
   "include": [
-    "src/"
+    "src/",
+    "src/types/hap-augmentations"
   ],
   "exclude": [
     "**/*.spec.ts"
