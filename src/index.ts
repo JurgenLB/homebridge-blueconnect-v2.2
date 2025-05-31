@@ -8,7 +8,7 @@ import { registerCustomCharacteristics } from './customCharacteristics';
  * This method registers the platform with Homebridge
  */
 export default (api: API) => {
-  registerCustomCharacteristics(api);
+  registerCustomCharacteristics(Characteristic);
   api.registerPlatform(PLATFORM_NAME, BlueConnectPlatform);
 };
 
