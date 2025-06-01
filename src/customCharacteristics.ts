@@ -1,4 +1,4 @@
-import { API, Characteristicvalue } from 'homebridge';
+import { API, CharacteristicValue } from 'homebridge';
 
 export {
   ConductivityCharacteristic,
@@ -29,14 +29,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: Characteristicvalue.Formats.FLOAT,
+        format: CharacteristicValue.Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          Characteristicvalue.Perms.PAIRED_READ,
-          Characteristicvalue.Perms.NOTIFY,
+          CharacteristicValue.Perms.PAIRED_READ,
+          CharacteristicValue.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -59,14 +59,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: Characteristicvalue.Formats.FLOAT,
+        format: CharacteristicValue.Formats.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          Characteristicvalue.Perms.PAIRED_READ,
-          Characteristicvalue.Perms.NOTIFY,
+          CharacteristicValue.Perms.PAIRED_READ,
+          CharacteristicValue.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -89,14 +89,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: Characteristicvalue.Formats.FLOAT,
+        format: CharacteristicValue.Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          Characteristicvalue.Perms.PAIRED_READ,
-          Characteristicvalue.Perms.NOTIFY,
+          CharacteristicValue.Perms.PAIRED_READ,
+          CharacteristicValue.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
