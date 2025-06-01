@@ -44,7 +44,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
 
   configureAccessory(accessory: PlatformAccessory) {
     this.log.info('Loading accessory from cache:', accessory.displayName);
-    this.accessories.push(accessory
+    this.accessories.push(accessory);
     if (accessory.displayName.startsWith('BlueConnect-')) {
       new BlueConnectAccessory(this, accessory);
     } else if (accessory.displayName.startsWith('Pool-')) {
