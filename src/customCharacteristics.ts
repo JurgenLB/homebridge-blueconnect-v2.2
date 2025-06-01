@@ -2,8 +2,19 @@ import { API, WithUUID } from 'homebridge';
 import { Formats, Perms } from 'hap-nodejs';
 import { StaticEventEmitterIteratorOptions } from 'events';
 
-public _sideloadCharacteristics;
+
 //export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
+public API;
+public setHandler;
+public getHandler;
+public getDefaultValue;
+public emitCharacteristicWarningEvent;
+public StaticEventEmitterOptions;
+public characteristicWarning;
+public _sideloadCharacteristics;
+public subscriptions;
+public validateClientSuppliedValue;
+public validateUserInput;
 
 interface BlueDevice {
   blue_device_serial: string;
