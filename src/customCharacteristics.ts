@@ -1,4 +1,4 @@
-import { Service, Characteristic } from 'homebridge';
+//import { Service, Characteristic } from 'homebridge';
 
 export function createCustomCharacteristicsAndServices(api, blueDevice) {
   // Conductivity
