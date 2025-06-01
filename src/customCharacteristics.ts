@@ -35,14 +35,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: Characteristic.Format.FLOAT,
+        format: api.hap.Service.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          Characteristic.Permission.PAIRED_READ,
-          Characteristic.Permission.NOTIFY,
+          api.hap.Service.PAIRED_READ,
+          api.hap.Service.NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
@@ -65,14 +65,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: Characteristic.Format.FLOAT,
+        format: api.hap.Service.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          Characteristic.Permission.PAIRED_READ,
-          Characteristic.Permission.NOTIFY,
+          api.hap.Service.PAIRED_READ,
+          api.hap.Service.NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
@@ -95,14 +95,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: Characteristic.Format.FLOAT,
+        format: api.hap.Service.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          Characteristic.Permission.PAIRED_READ,
-          Characteristic.Permission.NOTIFY,
+          api.hap.Service.PAIRED_READ,
+          api.hap.Service.NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
