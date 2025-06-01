@@ -21,7 +21,7 @@ export class PhCharacteristic extends Characteristic {
   static readonly UUID: string = '00000002-0000-1000-8000-135D67EC4377';
   constructor() {
     super('pH', PhCharacteristic.UUID, {
-      format: api.hap.Formats.FLOAT,
+      format: Characteristic.Formats.FLOAT,
       unit: '',
       minValue: 0,
       maxValue: 14,
@@ -36,7 +36,7 @@ export class OrpCharacteristic extends Characteristic {
   static readonly UUID: string = '00000003-0000-1000-8000-135D67EC4377';
   constructor() {
     super('ORP', OrpCharacteristic.UUID, {
-      format: api.hap.Formats.FLOAT,
+      format: Characteristic.Formats.FLOAT,
       unit: 'mV',
       minValue: 0,
       maxValue: 2000,
@@ -72,4 +72,9 @@ export class OrpSensorService extends api.hap.Service {
     super(displayName, OrpSensorService.UUID, subtype);
     this.addCharacteristic(OrpCharacteristic);
   }
+}
+
+// Export the registration function
+export function registerCustomCharacteristicsAndServices(api: API) {
+  // (Optionally register with Homebridge here)
 }
