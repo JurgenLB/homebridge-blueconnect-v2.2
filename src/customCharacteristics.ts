@@ -1,5 +1,6 @@
 import { API } from 'homebridge';
 import { Formats, Perms } from 'hap-nodejs';
+import { StaticEventEmitterOptions } from "events";
 
 
 interface BlueDevice {
@@ -13,7 +14,7 @@ interface BlueDevice {
 };
 
 // Conductivity
-class ConductivityCharacteristic extends Characteristic) {
+class ConductivityCharacteristic extends Characteristic {
   constructor(api: API, blueDevice: BlueDevice) {
     super('Conductivity', api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
@@ -29,13 +30,13 @@ class ConductivityCharacteristic extends Characteristic) {
   }
 };
 
-export const ConductivityCharacteristicWrapper: WithUUID<new () => Characteristic> = {
+export const ConductivityCharacteristicWrapper: WithUUID<typeof Characteristic> = {
   UUID: api.hap.uuid.generate('unique-id'),
   new: () => new ConductivityCharacteristic(apiInstance, blueDeviceInstance),
 };
 
 // PH
-class PhCharacteristic extends Characteristic) {
+class PhCharacteristic extends Characteristic {
   constructor(api: API, blueDevice: BlueDevice) {
     super('pH', api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
@@ -51,13 +52,13 @@ class PhCharacteristic extends Characteristic) {
   }
 };
 
-export const PhCharacteristicWrapper: WithUUID<new () => Characteristic> = {
+export const PhCharacteristicWrapper: WithUUID<typeof Characteristic> = {
   UUID: api.hap.uuid.generate('unique-id'),
   new: () => new PhCharacteristic(apiInstance, blueDeviceInstance),
 };
 
 // ORP
-class OrpCharacteristic extends Characteristic) {
+class OrpCharacteristic extends Characteristic {
   constructor(api: API, blueDevice: BlueDevice) {
     super('ORP', api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
@@ -73,13 +74,16 @@ class OrpCharacteristic extends Characteristic) {
   }
 };
 
-export const OrpCharacteristicWrapper: WithUUID<new () => Characteristic> = {
+export const OrpCharacteristicWrapper: WithUUID<typeof Characteristic> = {
   UUID: api.hap.uuid.generate('unique-id'),
   new: () => new OrpCharacteristic(apiInstance, blueDeviceInstance),
 };
 
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
+  public _sideloadCharacteristics;
+  public emitCharacteristicWarningEvent;
+  public setupCharacteristicEventHandlers;
   // Conductivity
   class ConductivitySensorService extends api.hap.Service {
     constructor(displayName: string, subtype?: string) {
