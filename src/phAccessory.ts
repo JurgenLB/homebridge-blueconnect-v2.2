@@ -10,6 +10,10 @@ export class PhAccessory {
     private readonly accessory: PlatformAccessory & { log?: Logging },
   ) {
     this.accessory.log = this.platform.log;
+    // Assign the service before using it
+    this.service = this.accessory.getService(this.platform.Service.PhSensor)
+        || this.accessory.addService(this.platform.Service.PhSensor, 'Ph');
+
 
     this.getPH().then(() => {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -18,10 +22,6 @@ export class PhAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-      // Use the custom pH Sensor service
-      const service = this.accessory.getService(this.platform.Service.PhSensor)
-        || this.accessory.addService(this.platform.Service.PhSensor, 'Ph');
-      
       service.getCharacteristic(this.platform.Characteristic.Ph);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'pH');
