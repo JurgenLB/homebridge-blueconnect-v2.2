@@ -1,5 +1,14 @@
 import { API } from 'homebridge';
 
+export {
+  ConductivityCharacteristic,
+  PhCharacteristic,
+  OrpCharacteristic,
+  ConductivitySensorService,
+  PhSensorService,
+  OrpSensorService,
+};
+
 interface BlueDevice {
   blue_device_serial: string;
   swimming_pool_id: string;
@@ -20,14 +29,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: api.hap.Characteristic.Format.FLOAT,
+        format: api.hap.Characteristic.Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Permission.PAIRED_READ,
-          api.hap.Characteristic.Permission.NOTIFY,
+          api.hap.Characteristic.Perms.PAIRED_READ,
+          api.hap.Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -50,14 +59,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: api.hap.Characteristic.Format.FLOAT,
+        format: api.hap.Characteristic.Formats.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          api.hap.Characteristic.Permission.PAIRED_READ,
-          api.hap.Characteristic.Permission.NOTIFY,
+          api.hap.Characteristic.Perms.PAIRED_READ,
+          api.hap.Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -80,14 +89,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: api.hap.Characteristic.Format.FLOAT,
+        format: api.hap.Characteristic.Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Permission.PAIRED_READ,
-          api.hap.Characteristic.Permission.NOTIFY,
+          api.hap.Characteristic.Perms.PAIRED_READ,
+          api.hap.Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -100,13 +109,4 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
       this.addCharacteristic(OrpCharacteristic);
     }
   }
-
-  export {
-    ConductivityCharacteristic,
-    PhCharacteristic,
-    OrpCharacteristic,
-    ConductivitySensorService,
-    PhSensorService,
-    OrpSensorService,
-  };
 }
