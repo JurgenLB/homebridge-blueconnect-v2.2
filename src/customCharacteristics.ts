@@ -1,4 +1,4 @@
-import { API, Characteristic } from 'homebridge';
+import { API, Characteristicvalue } from 'homebridge';
 
 export {
   ConductivityCharacteristic,
@@ -29,14 +29,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: Characteristic.Formats.FLOAT,
+        format: Characteristicvalue.Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          Characteristic.Perms.PAIRED_READ,
-          Characteristic.Perms.NOTIFY,
+          Characteristicvalue.Perms.PAIRED_READ,
+          Characteristicvalue.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -59,14 +59,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: Characteristic.Formats.FLOAT,
+        format: Characteristicvalue.Formats.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          Characteristic.Perms.PAIRED_READ,
-          Characteristic.Perms.NOTIFY,
+          Characteristicvalue.Perms.PAIRED_READ,
+          Characteristicvalue.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -89,14 +89,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: Characteristic.Formats.FLOAT,
+        format: Characteristicvalue.Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          Characteristic.Perms.PAIRED_READ,
-          Characteristic.Perms.NOTIFY,
+          Characteristicvalue.Perms.PAIRED_READ,
+          Characteristicvalue.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
