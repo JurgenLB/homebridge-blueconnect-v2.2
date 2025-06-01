@@ -12,8 +12,8 @@ export class BlueConnectAccessory {
   public phService: Service;
 
   constructor(
-    private readonly platform: BlueConnectPlatform,
-    private readonly accessory: PlatformAccessory,
+    public readonly platform: BlueConnectPlatform,
+    public readonly accessory: PlatformAccessory,
   ) {
     const blueDevice = this.accessory.context.device;
 
