@@ -1,4 +1,4 @@
-import { API, Service, Characteristic, WithUUID } from 'homebridge';
+import { API } from 'homebridge';
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -107,6 +107,6 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
     OrpCharacteristic,
     ConductivitySensorService,
     PhSensorService,
-    OrpSensorService
+    OrpSensorService,
   };
 }
