@@ -20,9 +20,9 @@ module.exports =  {
   OrpSensorService,
 };
 
-var ConductivityCharacteristic;
-var PhCharacteristic;
-var OrpCharacteristic;
+//var ConductivityCharacteristic;
+//var PhCharacteristic;
+//var OrpCharacteristic;
 
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
