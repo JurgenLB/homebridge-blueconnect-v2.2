@@ -5,7 +5,7 @@ import { PLATFORM_NAME } from './settings.js';
 /**
  * This method registers the platform with Homebridge
  */
-export = (api: API) => {
+module.exports = (api: API) => {
   //createCustomCharacteristicsAndServices(api);
   api.registerPlatform(PLATFORM_NAME, BlueConnectPlatform);
 };
