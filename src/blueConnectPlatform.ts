@@ -1,9 +1,7 @@
 import { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
-import { registerCustomCharacteristicsAndServices } from './customCharacteristics';
+import { createCustomCharacteristicsAndServices } from './customCharacteristics';
 
-import { PhAccessory } from './phAccessory.js';
-import { OrpAccessory } from './orpAccessory.js';
-import { ConductivityAccessory } from './conductivityAccessory.js';
+import { BlueConnectAccessory } from './customAccessory.ts';
 import { WeatherAccessory } from './weatherAccessory.js';
 import { PoolAccessory } from './poolAccessory.js';
 import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
@@ -39,17 +37,21 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
 
     this.api.on('didFinishLaunching', () => {
       log.debug('Executed didFinishLaunching callback');
-
       this.discoverDevices();
     });
-
     this.blueRiotAPI = new BlueriiotAPI();
   }
 
   configureAccessory(accessory: PlatformAccessory) {
     this.log.info('Loading accessory from cache:', accessory.displayName);
-
-    this.accessories.push(accessory);
+    this.accessories.push(accessory
+    if (accessory.displayName.startsWith('BlueConnect-')) {
+      new BlueConnectAccessory(this, accessory);
+    } else if (accessory.displayName.startsWith('Pool-')) {
+      new PoolAccessory(this, accessory);
+    } else if (accessory.displayName.startsWith('weather-')) {
+      new WeatherAccessory(this, accessory);
+    }
   }
 
   /**
@@ -86,9 +88,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
             // For each blue device, register all custom sensor accessories
             blueDevices.forEach((blueDevice: { blue_device_serial: string; swimming_pool_id: string }) => {
               this.processPoolAccessory(blueDevice);
-              this.processPhAccessory(blueDevice);
-              this.processOrpAccessory(blueDevice);
-              this.processConductivityAccessory(blueDevice);
+              this.processBlueConnectAccessory(blueDevice);
             });
 
             this.processWeatherAccessory(poolId);
@@ -122,61 +122,20 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private processPhAccessory(blueDevice: { blue_device_serial: string; swimming_pool_id: string }) {
-    const uuid = this.api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial);
+  private processBlueConnectAccessory(blueDevice: { blue_device_serial: string; swimming_pool_id: string }) {
+    // Use a single accessory per BlueConnect device for all sensors
+    const uuid = this.api.hap.uuid.generate('BlueConnect-' + blueDevice.blue_device_serial);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
     if (existingAccessory) {
-      this.log.info('Restoring existing pH accessory from cache:', existingAccessory.displayName);
-      new PhAccessory(this, existingAccessory);
+      this.log.info('Restoring existing BlueConnect accessory from cache:', existingAccessory.displayName);
+      new BlueConnectAccessory(this, existingAccessory);
     } else {
-      this.log.info('Adding new pH accessory:', blueDevice.blue_device_serial);
+      this.log.info('Adding new BlueConnect accessory:', blueDevice.blue_device_serial);
 
-      const accessory = new this.api.platformAccessory('pH-' + blueDevice.blue_device_serial, uuid);
-
+      const accessory = new this.api.platformAccessory('BlueConnect-' + blueDevice.blue_device_serial, uuid);
       accessory.context.device = blueDevice;
-
-      new PhAccessory(this, accessory);
-
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-    }
-  }
-
-  private processOrpAccessory(blueDevice: { blue_device_serial: string; swimming_pool_id: string }) {
-    const uuid = this.api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial);
-    const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-    if (existingAccessory) {
-      this.log.info('Restoring existing ORP accessory from cache:', existingAccessory.displayName);
-      new OrpAccessory(this, existingAccessory);
-    } else {
-      this.log.info('Adding new ORP accessory:', blueDevice.blue_device_serial);
-
-      const accessory = new this.api.platformAccessory('ORP-' + blueDevice.blue_device_serial, uuid);
-
-      accessory.context.device = blueDevice;
-
-      new OrpAccessory(this, accessory);
-
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-    }
-  }
-
-  private processConductivityAccessory(blueDevice: { blue_device_serial: string; swimming_pool_id: string }) {
-    const uuid = this.api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial);
-    const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-    if (existingAccessory) {
-      this.log.info('Restoring existing Conductivity accessory from cache:', existingAccessory.displayName);
-      new ConductivityAccessory(this, existingAccessory);
-    } else {
-      this.log.info('Adding new Conductivity accessory:', blueDevice.blue_device_serial);
-
-      const accessory = new this.api.platformAccessory('Conductivity-' + blueDevice.blue_device_serial, uuid);
-
-      accessory.context.device = blueDevice;
-
-      new ConductivityAccessory(this, accessory);
+      new BlueConnectAccessory(this, accessory);
 
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }
