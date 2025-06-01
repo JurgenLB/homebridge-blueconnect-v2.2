@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { createCustomCharacteristicsAndServices } from './customCharacteristics';
 
