@@ -1,5 +1,4 @@
 import type { API } from 'homebridge';
-import { createCustomCharacteristicsAndServices } from './customCharacteristics';
 import { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { PLATFORM_NAME } from './settings.js';
 
