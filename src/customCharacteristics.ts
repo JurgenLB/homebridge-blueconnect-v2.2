@@ -13,8 +13,7 @@ interface BlueDevice {
 };
 
 // Conductivity
-class ConductivityCharacteristic extends (require('hap-nodejs').Characteristic) {
-  static readonly UUID: string;
+class ConductivityCharacteristic extends Characteristic) {
   constructor(api: API, blueDevice: BlueDevice) {
     super('Conductivity', api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
@@ -28,11 +27,15 @@ class ConductivityCharacteristic extends (require('hap-nodejs').Characteristic) 
       ],
     });
   }
-}
+};
+
+export const ConductivityCharacteristicWrapper: WithUUID<new () => Characteristic> = {
+  UUID: api.hap.uuid.generate('unique-id'),
+  new: () => new ConductivityCharacteristic(apiInstance, blueDeviceInstance),
+};
 
 // PH
-class PhCharacteristic extends (require('hap-nodejs').Characteristic) {
-  static readonly UUID: string;
+class PhCharacteristic extends Characteristic) {
   constructor(api: API, blueDevice: BlueDevice) {
     super('pH', api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
@@ -46,11 +49,15 @@ class PhCharacteristic extends (require('hap-nodejs').Characteristic) {
       ],
     });
   }
-}
+};
+
+export const PhCharacteristicWrapper: WithUUID<new () => Characteristic> = {
+  UUID: api.hap.uuid.generate('unique-id'),
+  new: () => new PhCharacteristic(apiInstance, blueDeviceInstance),
+};
 
 // ORP
-class OrpCharacteristic extends (require('hap-nodejs').Characteristic) {
-  static readonly UUID: string;
+class OrpCharacteristic extends Characteristic) {
   constructor(api: API, blueDevice: BlueDevice) {
     super('ORP', api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
@@ -64,7 +71,12 @@ class OrpCharacteristic extends (require('hap-nodejs').Characteristic) {
       ],
     });
   }
-}
+};
+
+export const OrpCharacteristicWrapper: WithUUID<new () => Characteristic> = {
+  UUID: api.hap.uuid.generate('unique-id'),
+  new: () => new OrpCharacteristic(apiInstance, blueDeviceInstance),
+};
 
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
