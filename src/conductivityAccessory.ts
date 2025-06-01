@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-//import { ConductivitySensorService, ConductivityCharacteristic } from './customCharacteristics';
+import { ConductivitySensorService, ConductivityCharacteristic } from './customCharacteristics';
 
 export class ConductivityAccessory {
   private service: Service;
@@ -13,8 +13,13 @@ export class ConductivityAccessory {
     this.accessory.log = this.platform.log;
 
     // Assign the service before using it
-    this.service = this.accessory.getService(this.platform.Service.ConductivitySensorService)
-      || this.accessory.addService(this.platform.Service.ConductivitySensorService, 'Conductivity Sensor');
+    this.service = this.accessory.services.find(s => s.displayName === 'Conductivity') as Service ||
+      (this.accessory.addService(new (ConductivitySensorService as any)('Conductivity')) as Service);
+
+    // Make sure the custom pH characteristic is present
+    if (!this.service.testCharacteristic(ConductivityCharacteristic)) {
+      this.service.addCharacteristic(ConductivityCharacteristic);
+    }
 
     this.getCONDUCTIVITY().then(() => {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -23,20 +28,26 @@ export class ConductivityAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
       
-      service.getCharacteristic(this.platform.Characteristic.ConductivityCharacteristic);
-
+      // Set the characteristic value
+      this.service
+        .getCharacteristic(ConductivityCharacteristic)
+        .onGet(this.handleConductivityGet.bind(this))
+        .updateValue(this.currentConductivity);
+  
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'Conductivity');
 
       setInterval(() => {
-        this.getCONDUCTIVITY().catch((error) => {
+        this.getCONDUCTIVITY().then(() => {
+          this.service.updateCharacteristic(ConductivityCharacteristic, this.currentConductivity);
+        }).catch((error) => {
           this.platform.log.error('Error getting CONDUCTIVITY: ' + error);
         });
       }, 60000 * (this.platform.config.refreshInterval || 30));
     });
   }
 
-  async handleCONDUCTIVITYGet(): Promise<CharacteristicValue> {
-    return this.currentCONDUCTIVITY;
+  async handleConductivityGet(): Promise<CharacteristicValue> {
+    return this.currentConductivity;
   }
 
   async getCONDUCTIVITY() {
@@ -46,8 +57,8 @@ export class ConductivityAccessory {
         this.accessory.context.device.blue_device_serial,
       );
       const lastMeasurement = JSON.parse(lastMeasurementString);
-      this.currentCONDUCTIVITY = lastMeasurement.data.find((element: { name: string }) => element.name === 'conductivity')?.value ?? 0;
-      this.platform.log.debug(`Current conductivity: ${this.currentCONDUCTIVITY}`);
+      this.currentConductivity = lastMeasurement.data.find((element: { name: string }) => element.name === 'Conductivity')?.value ?? 0;
+      this.platform.log.debug(`Current conductivity: ${this.currentConductivity}`);
     } catch (error) {
       this.platform.log.error('Error getting CONDUCTIVITY: ' + error);
     }
