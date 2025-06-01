@@ -1,4 +1,4 @@
-import { Service, Characteristic, WithUUID } from 'homebridge';
+import { API, Service, Characteristic, WithUUID } from 'homebridge';
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -10,7 +10,7 @@ interface BlueDevice {
   // "battery_low": false,
 }
 
-export function createCustomCharacteristicsAndServices(api: typeof import('homebridge'), blueDevice: BlueDevice) {
+export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
   // Conductivity
   const conductivityCharacteristicUUID = api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial);
   const conductivityServiceUUID = api.hap.uuid.generate('conductivity-service-' + blueDevice.blue_device_serial);
@@ -102,8 +102,8 @@ export function createCustomCharacteristicsAndServices(api: typeof import('homeb
     ConductivityCharacteristic: ConductivityCharacteristic as WithUUID<new () => Characteristic>,
     PhCharacteristic: PhCharacteristic as WithUUID<new () => Characteristic>,
     OrpCharacteristic: OrpCharacteristic as WithUUID<new () => Characteristic>,
+    ConductivitySensorService: ConductivitySensorService as typeof Service,
     PhSensorService: PhSensorService as typeof Service,
-    OrpCharacteristic: OrpCharacteristic as WithUUID<typeof Characteristic>,
     OrpSensorService: OrpSensorService as typeof Service,
   };
 }
