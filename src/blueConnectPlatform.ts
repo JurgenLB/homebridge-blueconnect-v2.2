@@ -7,7 +7,7 @@ import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
 import { BlueriiotAPI } from './api/blueriiot-api';
 
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
-  private api;
+  //private api;
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
   public blueRiotAPI: BlueriiotAPI;
@@ -21,12 +21,14 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   constructor(
     public readonly log: Logging,
     public readonly config: PlatformConfig,
+    public readonly api: API,
+    public readonly platformType?: string,
     private readonly platform: BlueConnectPlatform,
     private readonly accessory: PlatformAccessory,
   ) {
     // Register custom characteristics before anything else
-    this.api = platform.api;
-    const blueDevice = this.accessory.context.device;
+    //this.api = platform.api;
+    //const blueDevice = this.accessory.context.device;
     //createCustomCharacteristicsAndServices(api, blueDevice);
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
