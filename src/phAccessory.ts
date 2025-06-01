@@ -23,7 +23,7 @@ export class PhAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-      service.getCharacteristic(this.platform.Characteristic.PhCharacteristic);
+      this.service.getCharacteristic(this.platform.Characteristic.PhCharacteristic);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'pH');
 
