@@ -24,13 +24,13 @@ export class BlueConnectAccessory {
       OrpSensorService,
       PhCharacteristic,
       PhSensorService,
-    } = createCustomCharacteristicsAndServices(this.api, blueDevice);
+    } = createCustomCharacteristicsAndServices(this.platform.api, blueDevice);
 
     // Accessory Information (optional but recommended)
-    this.accessory.getService(this.api.hap.Service.AccessoryInformation)!
-      .setCharacteristic(this.api.hap.Characteristic.Manufacturer, 'BlueRiiot')
-      .setCharacteristic(this.api.hap.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
-      .setCharacteristic(this.api.hap.Characteristic.SerialNumber, blueDevice.blue_device_serial)
+    this.accessory.getService(this.platform.api.hap.Service.AccessoryInformation)!
+      .setCharacteristic(this.platform.api.hap.Characteristic.Manufacturer, 'BlueRiiot')
+      .setCharacteristic(this.platform.api.hap.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
+      .setCharacteristic(this.platform.api.hap.Characteristic.SerialNumber, blueDevice.blue_device_serial)
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
     // Characteristic Handlers
