@@ -14,8 +14,6 @@ export const ConductivityCharacteristic = function () {
   });
   this.value = this.getDefaultValue();
 };
-ConductivityCharacteristic.prototype = Object.create(Characteristic.prototype);
-ConductivityCharacteristic.prototype.constructor = ConductivityCharacteristic;
 
 // Define a custom Conductivity Sensor Service
 export const ConductivitySensorService = function (displayName: string, subtype?: string) {
@@ -37,8 +35,6 @@ export const PhCharacteristic = function () {
   });
   this.value = this.getDefaultValue();
 };
-PhCharacteristic.prototype = Object.create(Characteristic.prototype);
-PhCharacteristic.prototype.constructor = PhCharacteristic;
 
 // Define a custom PH Sensor Service
 export const PhSensorService = function (displayName: string, subtype?: string) {
@@ -59,9 +55,12 @@ export const PhCharacteristic = function () {
   });
   this.value = this.getDefaultValue();
 };
-OrpCharacteristic.prototype = Object.create(Characteristic.prototype);
-OrpCharacteristic.prototype.constructor = OrpCharacteristic;
-}
+
+// Define a custom PH Sensor Service
+export const OrpSensorService = function (displayName: string, subtype?: string) {
+  Service.call(this, displayName, uuid.generate('OrpSensorService'), subtype);
+  this.addCharacteristic(OrpCharacteristic);
+};
   
 // --- Custom Services ---
 ConductivitySensorService.prototype = Object.create(Service.prototype);
