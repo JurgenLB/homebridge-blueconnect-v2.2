@@ -1,5 +1,10 @@
 import { API, WithUUID } from 'homebridge';
-import { Characteristic } from 'hap-nodejs';
+import { Characteristic, FLOAT, PAIRED_READ, NOTIFY  } from 'hap-nodejs';
+import {
+  ConductivityCharacteristic,
+  PhCharacteristic,
+  OrpCharacteristic,
+} from "./customCharacteristics";
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -35,14 +40,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: api.hap.Service.FLOAT,
+        format: FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Service.PAIRED_READ,
-          api.hap.Service.NOTIFY,
+          PAIRED_READ,
+          NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
@@ -65,14 +70,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: api.hap.Service.FLOAT,
+        format: FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          api.hap.Service.PAIRED_READ,
-          api.hap.Service.NOTIFY,
+          PAIRED_READ,
+          NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
@@ -95,14 +100,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: api.hap.Service.FLOAT,
+        format: FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Service.PAIRED_READ,
-          api.hap.Service.NOTIFY,
+          PAIRED_READ,
+          NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
