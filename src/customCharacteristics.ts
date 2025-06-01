@@ -1,4 +1,5 @@
 import { API, WithUUID, CharacteristicValue } from 'homebridge';
+var Characteristic = require('hap-nodejs').Characteristic;
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -8,7 +9,17 @@ interface BlueDevice {
   // Add other properties as needed
   // "contract_servicePlan": "plus",
   // "battery_low": false,
-}
+};
+
+module.exports =  {
+    ConductivityCharacteristic,
+    PhCharacteristic,
+    OrpCharacteristic,
+    ConductivitySensorService,
+    PhSensorService,
+    OrpSensorService,
+};
+
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
   // Conductivity
@@ -20,14 +31,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: CharacteristicValue.Formats.FLOAT,
+        format: Characteristic.Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          CharacteristicValue.Perms.PAIRED_READ,
-          CharacteristicValue.Perms.NOTIFY,
+          Characteristic.Perms.PAIRED_READ,
+          Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -50,14 +61,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: CharacteristicValue.Formats.FLOAT,
+        format: Characteristic.Formats.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          CharacteristicValue.Perms.PAIRED_READ,
-          CharacteristicValue.Perms.NOTIFY,
+          Characteristic.Perms.PAIRED_READ,
+          Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -80,14 +91,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: CharacteristicValue.Formats.FLOAT,
+        format: Characteristic.Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          CharacteristicValue.Perms.PAIRED_READ,
-          CharacteristicValue.Perms.NOTIFY,
+          Characteristic.Perms.PAIRED_READ,
+          Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -100,15 +111,6 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
       this.addCharacteristic(OrpCharacteristic);
     }
   }
-
-  export {
-    ConductivityCharacteristic,
-    PhCharacteristic,
-    OrpCharacteristic,
-    ConductivitySensorService,
-    PhSensorService,
-    OrpSensorService,
-  };
 
   return {
     ConductivityCharacteristic: ConductivityCharacteristic as WithUUID<new () => ConductivityCharacteristic>,
