@@ -114,7 +114,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
     OrpSensorService,
     PhSensorService,
   };
-}
 
-// Export classes individually for direct imports
-export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
+  // Export classes individually for direct imports
+  export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
+}
