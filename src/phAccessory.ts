@@ -2,7 +2,7 @@ import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebr
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 
 export class PhAccessory {
-  private service: Service | null = null;
+  private service: Service;
   private currentPH = 7;
 
   constructor(
