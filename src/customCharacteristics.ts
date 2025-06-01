@@ -5,16 +5,6 @@ import { StaticEventEmitterIteratorOptions } from 'events';
 
 //export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
 public API;
-public setHandler;
-public getHandler;
-public getDefaultValue;
-public emitCharacteristicWarningEvent;
-public StaticEventEmitterOptions;
-public characteristicWarning;
-public _sideloadCharacteristics;
-public subscriptions;
-public validateClientSuppliedValue;
-public validateUserInput;
 
 interface BlueDevice {
   blue_device_serial: string;
