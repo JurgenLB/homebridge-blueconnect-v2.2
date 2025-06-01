@@ -1,5 +1,5 @@
-import { API, WithUUID, CharacteristicValue } from 'homebridge';
-var Characteristic = require('hap-nodejs').Characteristic;
+import { API, WithUUID } from 'homebridge';
+import { Characteristic } from 'hap-nodejs';
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -12,13 +12,17 @@ interface BlueDevice {
 };
 
 module.exports =  {
-    ConductivityCharacteristic,
-    PhCharacteristic,
-    OrpCharacteristic,
-    ConductivitySensorService,
-    PhSensorService,
-    OrpSensorService,
+  ConductivityCharacteristic,
+  PhCharacteristic,
+  OrpCharacteristic,
+  ConductivitySensorService,
+  PhSensorService,
+  OrpSensorService,
 };
+
+var ConductivityCharacteristic;
+var PhCharacteristic;
+var OrpCharacteristic;
 
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
@@ -116,8 +120,5 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
     ConductivityCharacteristic: ConductivityCharacteristic as WithUUID<new () => ConductivityCharacteristic>,
     PhCharacteristic: PhCharacteristic as WithUUID<new () => PhCharacteristic>,
     OrpCharacteristic: OrpCharacteristic as WithUUID<new () => OrpCharacteristic>,
-    ConductivitySensorService: ConductivitySensorService as typeof Service,
-    PhSensorService: PhSensorService as typeof Service,
-    OrpSensorService: OrpSensorService as typeof Service,
   };
 }
