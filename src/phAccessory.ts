@@ -12,10 +12,14 @@ export class PhAccessory {
   ) {
     this.accessory.log = this.platform.log;
     // Assign the service before using it
-    this.service = this.accessory.getService(this.platform.Service.PhSensorService)
-        || this.accessory.addService(this.platform.Service.PhSensorService, 'Ph');
+    this.service = this.accessory.services.find(s => s.displayName === 'pH') as Service ||
+      (this.accessory.addService(new (PhSensorService as any)('pH')) as Service);
 
-
+    // Make sure the custom pH characteristic is present
+    if (!this.service.testCharacteristic(PhCharacteristic)) {
+      this.service.addCharacteristic(PhCharacteristic);
+    }
+    
     this.getPH().then(() => {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
@@ -23,12 +27,18 @@ export class PhAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-      this.service.getCharacteristic(this.platform.Characteristic.PhCharacteristic);
-
+      // Set the characteristic value
+      this.service
+        .getCharacteristic(PhCharacteristic)
+        .onGet(this.handlePHGet.bind(this))
+        .updateValue(this.currentPH);
+      
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'pH');
 
       setInterval(() => {
-        this.getPH().catch((error) => {
+        this.getPH().then(() => {
+          this.service.updateCharacteristic(PhCharacteristic, this.currentPH);
+        }).catch((error) => {
           this.platform.log.error('Error getting pH: ' + error);
         });
       }, 60000 * (this.platform.config.refreshInterval || 30));
