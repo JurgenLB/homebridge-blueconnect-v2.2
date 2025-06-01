@@ -32,13 +32,13 @@ export class ConductivityAccessory {
       this.service
         .getCharacteristic(ConductivityCharacteristic)
         .onGet(this.handleConductivityGet.bind(this))
-        .updateValue(this.currentConductivity);
+        .updateValue(this.currentCONDUCTIVITY);
   
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'Conductivity');
 
       setInterval(() => {
         this.getCONDUCTIVITY().then(() => {
-          this.service.updateCharacteristic(ConductivityCharacteristic, this.currentConductivity);
+          this.service.updateCharacteristic(ConductivityCharacteristic, this.currentCONDUCTIVITY);
         }).catch((error) => {
           this.platform.log.error('Error getting CONDUCTIVITY: ' + error);
         });
@@ -47,7 +47,7 @@ export class ConductivityAccessory {
   }
 
   async handleConductivityGet(): Promise<CharacteristicValue> {
-    return this.currentConductivity;
+    return this.currentCONDUCTIVITY;
   }
 
   async getCONDUCTIVITY() {
@@ -57,8 +57,8 @@ export class ConductivityAccessory {
         this.accessory.context.device.blue_device_serial,
       );
       const lastMeasurement = JSON.parse(lastMeasurementString);
-      this.currentConductivity = lastMeasurement.data.find((element: { name: string }) => element.name === 'Conductivity')?.value ?? 0;
-      this.platform.log.debug(`Current conductivity: ${this.currentConductivity}`);
+      this.currentCONDUCTIVITY = lastMeasurement.data.find((element: { name: string }) => element.name === 'Conductivity')?.value ?? 0;
+      this.platform.log.debug(`Current conductivity: ${this.currentCONDUCTIVITY}`);
     } catch (error) {
       this.platform.log.error('Error getting CONDUCTIVITY: ' + error);
     }
