@@ -102,11 +102,11 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   }
 
   return {
-    ConductivityCharacteristic: ConductivityCharacteristic as WithUUID<new () => Characteristic>,
-    PhCharacteristic: PhCharacteristic as WithUUID<new () => Characteristic>,
-    OrpCharacteristic: OrpCharacteristic as WithUUID<new () => Characteristic>,
-    ConductivitySensorService: ConductivitySensorService as typeof Service,
-    PhSensorService: PhSensorService as typeof Service,
-    OrpSensorService: OrpSensorService as typeof Service,
+    ConductivityCharacteristic,
+    PhCharacteristic,
+    OrpCharacteristic,
+    ConductivitySensorService,
+    PhSensorService,
+    OrpSensorService,
   };
 }
