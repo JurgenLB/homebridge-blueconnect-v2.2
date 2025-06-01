@@ -1,4 +1,4 @@
-import { Service, Characteristic, API } from 'homebridge';
+import { Service, Characteristic } from 'homebridge';
 
 // --- Custom Characteristics ---
 // Conductivity
@@ -10,7 +10,7 @@ export const ConductivityCharacteristic = function () {
     minValue: 0,
     maxValue: 2000,
     minStep: 1,
-    perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY]
+    perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY],
   });
   this.value = this.getDefaultValue();
 };
@@ -31,7 +31,7 @@ export const PhCharacteristic = function () {
     minValue: 0,
     maxValue: 20,
     minStep: 1,
-    perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY]
+    perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY],
   });
   this.value = this.getDefaultValue();
 };
