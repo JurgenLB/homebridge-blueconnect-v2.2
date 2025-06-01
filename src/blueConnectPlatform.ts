@@ -6,6 +6,19 @@ import { PoolAccessory } from './poolAccessory.js';
 import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
 import { BlueriiotAPI } from './api/blueriiot-api';
 
+// Define proper types or interfaces
+interface User {
+  username: string;
+  email: string;
+  // Add other user-related properties
+}
+
+interface ServerConfig {
+  host: string;
+  port: number;
+  // Add other configuration properties
+}
+
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
   //private api;
   public readonly Service: typeof Service;
@@ -25,8 +38,8 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     public readonly platformType?: string,
     public readonly platformInstanceId?: BlueConnectPlatform,
     public readonly homebridgeVersion?: string,
-    public readonly user?: any,
-    public readonly serverConfig?: any,
+    public readonly user?: User,
+    public readonly serverConfig?: ServerConfig,
   ) {
     // Register custom characteristics before anything else
     //this.api = platform.api;
