@@ -26,8 +26,8 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Permission.PAIRED_READ as unknown as string,
-          api.hap.Characteristic.Permission.NOTIFY as unknown as string,
+          api.hap.Characteristic.Permission.PAIRED_READ,
+          api.hap.Characteristic.Permission.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -56,8 +56,8 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          api.hap.Characteristic.Permission.PAIRED_READ as unknown as string,
-          api.hap.Characteristic.Permission.NOTIFY as unknown as string,
+          api.hap.Characteristic.Permission.PAIRED_READ,
+          api.hap.Characteristic.Permission.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -86,8 +86,8 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Permission.PAIRED_READ as unknown as string,
-          api.hap.Characteristic.Permission.NOTIFY as unknown as string,
+          api.hap.Characteristic.Permission.PAIRED_READ,
+          api.hap.Characteristic.Permission.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -101,12 +101,12 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
     }
   }
 
-  return {
+  export {
     ConductivityCharacteristic,
     PhCharacteristic,
     OrpCharacteristic,
     ConductivitySensorService,
     PhSensorService,
-    OrpSensorService,
+    OrpSensorService
   };
 }
