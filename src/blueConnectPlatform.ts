@@ -19,14 +19,16 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly accessories: PlatformAccessory[] = [];
 
   constructor(
+    private readonly platform: BlueConnectPlatform,
+    private readonly accessory: PlatformAccessory,
     public readonly log: Logging,
     public readonly config: PlatformConfig,
     public readonly api: API,
     public readonly platformType?: string,
     public readonly platformInstanceId?: BlueConnectPlatform,
     public readonly homebridgeVersion?: string,
-    private readonly platform: BlueConnectPlatform,
-    private readonly accessory: PlatformAccessory,
+    public readonly user?: any,
+    public readonly serverConfig?: any,
   ) {
     // Register custom characteristics before anything else
     //this.api = platform.api;
