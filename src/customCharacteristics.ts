@@ -1,10 +1,5 @@
 import { API, WithUUID } from 'homebridge';
 import { Formats, Perms } from 'hap-nodejs';
-import {
-  ConductivityCharacteristic,
-  PhCharacteristic,
-  OrpCharacteristic,
-} from './customCharacteristics';
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -19,7 +14,6 @@ interface BlueDevice {
 //var ConductivityCharacteristic;
 //var PhCharacteristic;
 //var OrpCharacteristic;
-
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
   // Conductivity
