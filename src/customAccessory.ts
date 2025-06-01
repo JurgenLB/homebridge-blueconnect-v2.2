@@ -3,13 +3,13 @@ import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { createCustomCharacteristicsAndServices, ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic } from './customCharacteristics';
 
 export class BlueConnectAccessory {
-  private currentCONDUCTIVITY = 0;
-  private currentPH = 0;
-  private currentORP = 0;
+  public currentCONDUCTIVITY = 0;
+  public currentPH = 0;
+  public currentORP = 0;
 
-  private conductivityService: Service;
-  private orpService: Service;
-  private phService: Service;
+  public conductivityService: Service;
+  public orpService: Service;
+  public phService: Service;
 
   constructor(
     private readonly platform: BlueConnectPlatform,
