@@ -31,7 +31,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   const conductivityServiceUUID = api.hap.uuid.generate('conductivity-service-' + blueDevice.blue_device_serial);
 
   class ConductivityCharacteristic extends api.hap.Characteristic {
-    static readonly UUID = conductivityCharacteristicUUID;
+    public static readonly UUID = conductivityCharacteristicUUID;
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
@@ -45,7 +45,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
           Characteristic.Perms.NOTIFY,
         ],
       });
-      this.value = this.getDefaultValue();
+      //this.value = this.getDefaultValue();
     }
   }
 
@@ -61,7 +61,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   const phServiceUUID = api.hap.uuid.generate('ph-service-' + blueDevice.blue_device_serial);
 
   class PhCharacteristic extends api.hap.Characteristic {
-    static readonly UUID = phCharacteristicUUID;
+    public static readonly UUID = phCharacteristicUUID;
 
     constructor() {
       super('pH', phCharacteristicUUID, {
@@ -75,7 +75,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
           Characteristic.Perms.NOTIFY,
         ],
       });
-      this.value = this.getDefaultValue();
+      //this.value = this.getDefaultValue();
     }
   }
 
@@ -91,7 +91,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   const orpServiceUUID = api.hap.uuid.generate('orp-service-' + blueDevice.blue_device_serial);
 
   class OrpCharacteristic extends api.hap.Characteristic {
-    static readonly UUID = orpCharacteristicUUID;
+    public static readonly UUID = orpCharacteristicUUID;
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
@@ -105,7 +105,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
           Characteristic.Perms.NOTIFY,
         ],
       });
-      this.value = this.getDefaultValue();
+      //this.value = this.getDefaultValue();
     }
   }
 
@@ -120,5 +120,8 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
     ConductivityCharacteristic: ConductivityCharacteristic as WithUUID<new () => ConductivityCharacteristic>,
     PhCharacteristic: PhCharacteristic as WithUUID<new () => PhCharacteristic>,
     OrpCharacteristic: OrpCharacteristic as WithUUID<new () => OrpCharacteristic>,
+    ConductivitySensorService,
+    OrpSensorService,
+    PhSensorService,
   };
 }
