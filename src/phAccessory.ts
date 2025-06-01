@@ -1,5 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
+import { PhSensorService, PhCharacteristic } from './customCharacteristics';
 
 export class PhAccessory {
   private service: Service;
@@ -11,8 +12,8 @@ export class PhAccessory {
   ) {
     this.accessory.log = this.platform.log;
     // Assign the service before using it
-    this.service = this.accessory.getService(this.platform.Service.PhSensor)
-        || this.accessory.addService(this.platform.Service.PhSensor, 'Ph');
+    this.service = this.accessory.getService(this.platform.Service.PhSensorService)
+        || this.accessory.addService(this.platform.Service.PhSensorService, 'Ph');
 
 
     this.getPH().then(() => {
@@ -22,7 +23,7 @@ export class PhAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-      service.getCharacteristic(this.platform.Characteristic.Ph);
+      service.getCharacteristic(this.platform.Characteristic.PhCharacteristic);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'pH');
 
