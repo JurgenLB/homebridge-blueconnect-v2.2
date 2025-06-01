@@ -1,4 +1,4 @@
-import { API } from 'homebridge';
+import { API, Characteristic } from 'homebridge';
 
 export {
   ConductivityCharacteristic,
@@ -29,14 +29,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: api.hap.Characteristic.Formats.FLOAT,
+        format: Characteristic.Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Perms.PAIRED_READ,
-          api.hap.Characteristic.Perms.NOTIFY,
+          Characteristic.Perms.PAIRED_READ,
+          Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -59,14 +59,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: api.hap.Characteristic.Formats.FLOAT,
+        format: Characteristic.Formats.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          api.hap.Characteristic.Perms.PAIRED_READ,
-          api.hap.Characteristic.Perms.NOTIFY,
+          Characteristic.Perms.PAIRED_READ,
+          Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
@@ -89,14 +89,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: api.hap.Characteristic.Formats.FLOAT,
+        format: Characteristic.Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Perms.PAIRED_READ,
-          api.hap.Characteristic.Perms.NOTIFY,
+          Characteristic.Perms.PAIRED_READ,
+          Characteristic.Perms.NOTIFY,
         ],
       });
       this.value = this.getDefaultValue();
