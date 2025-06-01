@@ -3,7 +3,7 @@ import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 // import { ConductivitySensorService, ConductivityCharacteristic } from './customCharacteristics';
 
 export class ConductivityAccessory {
-  private service: Service | null = null;
+  private service: Service;
   private currentCONDUCTIVITY = 7;
 
   constructor(
@@ -12,16 +12,16 @@ export class ConductivityAccessory {
   ) {
     this.accessory.log = this.platform.log;
 
+    // Assign the service before using it
+    this.service = this.accessory.getService(this.platform.Service.ConductivitySensor)
+      || this.accessory.addService(this.platform.Service.ConductivitySensor, 'Conductivity Sensor');
+
     this.getCONDUCTIVITY().then(() => {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
         .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
-
-      // Use the custom Conductivity Sensor service
-      const service = this.accessory.getService(this.platform.Service.ConductivitySensor)
-        || this.accessory.addService(this.platform.Service.ConductivitySensor, 'Conductivity Sensor');
       
       service.getCharacteristic(this.platform.Characteristic.Conductivity);
 
