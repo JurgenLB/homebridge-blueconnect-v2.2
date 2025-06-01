@@ -1,5 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
+import { OrpSensorService, OrpCharacteristic } from './customCharacteristics';
 
 export class OrpAccessory {
   private service: Service;
@@ -11,8 +12,13 @@ export class OrpAccessory {
   ) {
     this.accessory.log = this.platform.log;
 
-    this.service = this.accessory.getService(this.platform.Service.OrpSensor)
-        || this.accessory.addService(this.platform.Service.OrpSensor, 'ORP');
+    this.service = this.accessory.services.find(s => s.displayName === 'ORP') as Service ||
+      (this.accessory.addService(new (OrpSensorService as any)('ORP')) as Service);
+
+    // Make sure the custom pH characteristic is present
+    if (!this.service.testCharacteristic(OrpCharacteristic)) {
+      this.service.addCharacteristic(OrpCharacteristic);
+    }
 
     this.getORP().then(() => {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -21,12 +27,18 @@ export class OrpAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-      service.getCharacteristic(this.platform.Characteristic.Orp);
+      // Set the characteristic value
+      this.service
+        .getCharacteristic(OrpCharacteristic)
+        .onGet(this.handlePHGet.bind(this))
+        .updateValue(this.currentORP);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'ORP');
 
       setInterval(() => {
-        this.getORP().catch((error) => {
+        this.getORP().then(() => {
+          this.service.updateCharacteristic(OrpCharacteristic, this.currentORP);
+        }).catch((error) => {
           this.platform.log.error('Error getting ORP: ' + error);
         });
       }, 60000 * (this.platform.config.refreshInterval || 30));
