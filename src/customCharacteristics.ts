@@ -20,7 +20,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: api.hap.Characteristic.Format.FLOAT as unknown as string,
+        format: api.hap.Characteristic.Format.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
@@ -50,7 +50,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: api.hap.Characteristic.Format.FLOAT as unknown as string,
+        format: api.hap.Characteristic.Format.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
@@ -80,7 +80,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: api.hap.Characteristic.Format.FLOAT as unknown as string,
+        format: api.hap.Characteristic.Format.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
