@@ -20,14 +20,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: api.hap.Characteristic.Formats.FLOAT as unknown as string,
+        format: api.hap.Characteristic.Format.FLOAT as unknown as string,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Perms.PAIRED_READ as unknown as string,
-          api.hap.Characteristic.Perms.NOTIFY as unknown as string,
+          api.hap.Characteristic.Permission.PAIRED_READ as unknown as string,
+          api.hap.Characteristic.Permission.NOTIFY as unknown as string,
         ],
       });
       this.value = this.getDefaultValue();
@@ -50,14 +50,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: api.hap.Characteristic.Formats.FLOAT as unknown as string,
+        format: api.hap.Characteristic.Format.FLOAT as unknown as string,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          api.hap.Characteristic.Perms.PAIRED_READ as unknown as string,
-          api.hap.Characteristic.Perms.NOTIFY as unknown as string,
+          api.hap.Characteristic.Permission.PAIRED_READ as unknown as string,
+          api.hap.Characteristic.Permission.NOTIFY as unknown as string,
         ],
       });
       this.value = this.getDefaultValue();
@@ -80,14 +80,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: api.hap.Characteristic.Formats.FLOAT as unknown as string,
+        format: api.hap.Characteristic.Format.FLOAT as unknown as string,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          api.hap.Characteristic.Perms.PAIRED_READ as unknown as string,
-          api.hap.Characteristic.Perms.NOTIFY as unknown as string,
+          api.hap.Characteristic.Permission.PAIRED_READ as unknown as string,
+          api.hap.Characteristic.Permission.NOTIFY as unknown as string,
         ],
       });
       this.value = this.getDefaultValue();
