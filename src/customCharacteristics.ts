@@ -1,4 +1,4 @@
-import { API, CharacteristicValue } from 'homebridge';
+import { API, WithUUID, CharacteristicValue } from 'homebridge';
 
 interface BlueDevice {
   blue_device_serial: string;
