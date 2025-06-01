@@ -91,8 +91,8 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
         maxValue: 2000,
         minStep: 1,
         perms: [
-          Perms.Formats.PAIRED_READ,
-          Perms.Formats.NOTIFY,
+          Perms.PAIRED_READ,
+          Perms.NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
