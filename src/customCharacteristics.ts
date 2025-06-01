@@ -2,79 +2,73 @@ import { Service, Characteristic, API } from 'homebridge';
 
 // --- Custom Characteristics ---
 // Conductivity
-export class ConductivityCharacteristic extends Characteristic {
-  static readonly UUID: string = '00000001-0000-1000-8000-135D67EC4377';
-  constructor() {
-    super('Conductivity', ConductivityCharacteristic.UUID, {
-      format: Characteristic.Formats.FLOAT,
-      unit: 'µS/cm',
-      minValue: 0,
-      maxValue: 100_000,
-      minStep: 1,
-      perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY],
-    });
-  }
-}
+export const ConductivityCharacteristic = function () {
+  Characteristic.call(this, 'Conductivity', uuid.generate('ConductivityCharacteristic'));
+  this.setProps({
+    format: Characteristic.Formats.FLOAT,
+    unit: 'µS/cm',
+    minValue: 0,
+    maxValue: 2000,
+    minStep: 1,
+    perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY]
+  });
+  this.value = this.getDefaultValue();
+};
+ConductivityCharacteristic.prototype = Object.create(Characteristic.prototype);
+ConductivityCharacteristic.prototype.constructor = ConductivityCharacteristic;
+
+// Define a custom Conductivity Sensor Service
+export const ConductivitySensorService = function (displayName: string, subtype?: string) {
+  Service.call(this, displayName, uuid.generate('ConductivitySensorService'), subtype);
+  this.addCharacteristic(ConductivityCharacteristic);
+};
+
 
 // pH
-export class PhCharacteristic extends Characteristic {
-  static readonly UUID: string = '00000002-0000-1000-8000-135D67EC4377';
-  constructor() {
-    super('pH', PhCharacteristic.UUID, {
-      format: Characteristic.Formats.FLOAT,
-      unit: '',
-      minValue: 0,
-      maxValue: 14,
-      minStep: 0.01,
-      perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY],
-    });
-  }
-}
+export const PhCharacteristic = function () {
+  Characteristic.call(this, 'Ph', uuid.generate('PhCharacteristic'));
+  this.setProps({
+    format: Characteristic.Formats.FLOAT,
+    unit: '',
+    minValue: 0,
+    maxValue: 20,
+    minStep: 1,
+    perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY]
+  });
+  this.value = this.getDefaultValue();
+};
+PhCharacteristic.prototype = Object.create(Characteristic.prototype);
+PhCharacteristic.prototype.constructor = PhCharacteristic;
+
+// Define a custom PH Sensor Service
+export const PhSensorService = function (displayName: string, subtype?: string) {
+  Service.call(this, displayName, uuid.generate('PhSensorService'), subtype);
+  this.addCharacteristic(PhCharacteristic);
+};
 
 // ORP
-export class OrpCharacteristic extends Characteristic {
-  static readonly UUID: string = '00000003-0000-1000-8000-135D67EC4377';
-  constructor() {
-    super('ORP', OrpCharacteristic.UUID, {
-      format: Characteristic.Formats.FLOAT,
-      unit: 'mV',
-      minValue: 0,
-      maxValue: 2000,
-      minStep: 1,
-      perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY],
-    });
-  }
+export const PhCharacteristic = function () {
+  Characteristic.call(this, 'ORP', uuid.generate('OrpCharacteristic'));
+  this.setProps({
+    format: Characteristic.Formats.FLOAT,
+    unit: 'mV',
+    minValue: 0,
+    maxValue: 2000,
+    minStep: 1,
+    perms: [Characteristic.Perms.PAIRED_READ, Characteristic.Perms.NOTIFY],
+  });
+  this.value = this.getDefaultValue();
+};
+OrpCharacteristic.prototype = Object.create(Characteristic.prototype);
+OrpCharacteristic.prototype.constructor = OrpCharacteristic;
 }
   
 // --- Custom Services ---
-// Conductivity Sensor Service
-export class ConductivitySensorService extends Service {
-  static readonly UUID: string = '00000005-0000-1000-8000-135D67EC4377';
-  constructor(displayName: string, subtype?: string) {
-    super(displayName, ConductivitySensorService.UUID, subtype);
-    this.addCharacteristic(ConductivityCharacteristic);
-  }
-}
+ConductivitySensorService.prototype = Object.create(Service.prototype);
+ConductivitySensorService.prototype.constructor = ConductivitySensorService;
 
-// pH Sensor Service
-export class PhSensorService extends Service {
-  static readonly UUID: string = '00000004-0000-1000-8000-135D67EC4377';
-  constructor(displayName: string, subtype?: string) {
-    super(displayName, PhSensorService.UUID, subtype);
-    this.addCharacteristic(PhCharacteristic);
-  }
-}
+PhSensorService.prototype = Object.create(Service.prototype);
+PhSensorService.prototype.constructor = PhSensorService;
 
-// ORP Sensor Service
-export class OrpSensorService extends api.hap.Service {
-  static readonly UUID: string = '00000006-0000-1000-8000-135D67EC4377';
-  constructor(displayName: string, subtype?: string) {
-    super(displayName, OrpSensorService.UUID, subtype);
-    this.addCharacteristic(OrpCharacteristic);
-  }
-}
-
-// Export the registration function
-export function registerCustomCharacteristicsAndServices(api: API) {
-  // (Optionally register with Homebridge here)
-}
+OrpSensorService.prototype = Object.create(Service.prototype);
+OrpSensorService.prototype.constructor = OrpSensorService;
