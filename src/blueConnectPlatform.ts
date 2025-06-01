@@ -1,5 +1,4 @@
 import { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
-import { createCustomCharacteristicsAndServices } from './customCharacteristics';
 
 import { BlueConnectAccessory } from './customAccessory';
 import { WeatherAccessory } from './weatherAccessory.js';
@@ -25,7 +24,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   ) {
     // Register custom characteristics before anything else
     this.api = api;
-    createCustomCharacteristicsAndServices(api);
+    //createCustomCharacteristicsAndServices(api, blueDevice);
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     this.fakeGatoHistoryService = require('fakegato-history')(this.api);
