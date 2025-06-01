@@ -23,6 +23,8 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
     public readonly platformType?: string,
+    public readonly platformInstanceId?: BlueConnectPlatform,
+    public readonly homebridgeVersion?: string,
     private readonly platform: BlueConnectPlatform,
     private readonly accessory: PlatformAccessory,
   ) {
