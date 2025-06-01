@@ -19,8 +19,6 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly accessories: PlatformAccessory[] = [];
 
   constructor(
-    private readonly platform: BlueConnectPlatform,
-    private readonly accessory: PlatformAccessory,
     public readonly log: Logging,
     public readonly config: PlatformConfig,
     public readonly api: API,
