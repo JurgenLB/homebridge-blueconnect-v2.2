@@ -117,5 +117,5 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
     ConductivitySensorService: ConductivitySensorService as typeof Service,
     PhSensorService: PhSensorService as typeof Service,
     OrpSensorService: OrpSensorService as typeof Service,
-  }
+  };
 }
