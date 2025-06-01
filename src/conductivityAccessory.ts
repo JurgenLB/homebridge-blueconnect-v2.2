@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-// import { ConductivitySensorService, ConductivityCharacteristic } from './customCharacteristics';
+import { ConductivitySensorService, ConductivityCharacteristic } from './customCharacteristics';
 
 export class ConductivityAccessory {
   private service: Service;
@@ -13,8 +13,8 @@ export class ConductivityAccessory {
     this.accessory.log = this.platform.log;
 
     // Assign the service before using it
-    this.service = this.accessory.getService(this.platform.Service.ConductivitySensor)
-      || this.accessory.addService(this.platform.Service.ConductivitySensor, 'Conductivity Sensor');
+    this.service = this.accessory.getService(this.platform.Service.ConductivitySensorService)
+      || this.accessory.addService(this.platform.Service.ConductivitySensorService, 'Conductivity Sensor');
 
     this.getCONDUCTIVITY().then(() => {
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -23,7 +23,7 @@ export class ConductivityAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
       
-      service.getCharacteristic(this.platform.Characteristic.Conductivity);
+      service.getCharacteristic(this.platform.Characteristic.ConductivityCharacteristic);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, 'Conductivity');
 
