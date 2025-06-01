@@ -1,6 +1,16 @@
 import { Service, Characteristic, WithUUID } from 'homebridge';
 
-export function createCustomCharacteristicsAndServices(api: any, blueDevice: any) {
+interface BlueDevice {
+  blue_device_serial: string;
+  swimming_pool_id: string;
+  city: string;
+  contract_servicePlan: string;
+  // Add other properties as needed
+  // "contract_servicePlan": "plus",
+  // "battery_low": false,
+}
+
+export function createCustomCharacteristicsAndServices(api: typeof import('homebridge'), blueDevice: BlueDevice) {
   // Conductivity
   const conductivityCharacteristicUUID = api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial);
   const conductivityServiceUUID = api.hap.uuid.generate('conductivity-service-' + blueDevice.blue_device_serial);
