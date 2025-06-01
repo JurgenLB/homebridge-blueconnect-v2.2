@@ -1,5 +1,5 @@
 import { API, WithUUID } from 'homebridge';
-import { FLOAT, PAIRED_READ, NOTIFY  } from 'hap-nodejs';
+import { Formats, Perms } from 'hap-nodejs';
 import {
   ConductivityCharacteristic,
   PhCharacteristic,
@@ -14,15 +14,6 @@ interface BlueDevice {
   // Add other properties as needed
   // "contract_servicePlan": "plus",
   // "battery_low": false,
-};
-
-module.exports =  {
-  ConductivityCharacteristic,
-  PhCharacteristic,
-  OrpCharacteristic,
-  ConductivitySensorService,
-  PhSensorService,
-  OrpSensorService,
 };
 
 //var ConductivityCharacteristic;
@@ -40,14 +31,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('Conductivity', conductivityCharacteristicUUID, {
-        format: FLOAT,
+        format: Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          PAIRED_READ,
-          NOTIFY,
+          Perms.PAIRED_READ,
+          Perms.NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
@@ -70,14 +61,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('pH', phCharacteristicUUID, {
-        format: FLOAT,
+        format: Formats.FLOAT,
         unit: '',
         minValue: 0,
         maxValue: 20,
         minStep: 0.01,
         perms: [
-          PAIRED_READ,
-          NOTIFY,
+          Perms.PAIRED_READ,
+          Perms.NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
@@ -100,14 +91,14 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
 
     constructor() {
       super('ORP', orpCharacteristicUUID, {
-        format: FLOAT,
+        format: Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
         maxValue: 2000,
         minStep: 1,
         perms: [
-          PAIRED_READ,
-          NOTIFY,
+          Perms.Formats.PAIRED_READ,
+          Perms.Formats.NOTIFY,
         ],
       });
       //this.value = this.getDefaultValue();
@@ -130,3 +121,6 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
     PhSensorService,
   };
 }
+
+// Export classes individually for direct imports
+export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
