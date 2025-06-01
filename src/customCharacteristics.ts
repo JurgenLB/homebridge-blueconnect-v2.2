@@ -1,6 +1,6 @@
 //import { Service, Characteristic } from 'homebridge';
 
-export function createCustomCharacteristicsAndServices(api, blueDevice) {
+export function createCustomCharacteristicsAndServices(api: any, blueDevice: any) {
   // Conductivity
   const conductivityCharacteristicUUID = api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial);
   const conductivityServiceUUID = api.hap.uuid.generate('conductivity-service-' + blueDevice.blue_device_serial);
@@ -89,11 +89,11 @@ export function createCustomCharacteristicsAndServices(api, blueDevice) {
   }
 
   return {
-    ConductivityCharacteristic,
-    ConductivitySensorService,
-    PhCharacteristic,
-    PhSensorService,
-    OrpCharacteristic,
-    OrpSensorService,
+    ConductivityCharacteristic: ConductivityCharacteristic as WithUUID<typeof Characteristic>,
+    ConductivitySensorService: ConductivitySensorService as typeof Service,
+    PhCharacteristic: PhCharacteristic as WithUUID<typeof Characteristic>,
+    PhSensorService: PhSensorService as typeof Service,
+    OrpCharacteristic: OrpCharacteristic as WithUUID<typeof Characteristic>,
+    OrpSensorService: OrpSensorService as typeof Service,
   };
 }
