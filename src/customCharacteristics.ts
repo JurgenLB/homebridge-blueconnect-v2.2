@@ -1,7 +1,7 @@
 import { API } from 'homebridge';
 import { Formats, Perms } from 'hap-nodejs';
 import { StaticEventEmitterOptions } from "events";
-
+export type { StaticEventEmitterOptions };
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -81,9 +81,10 @@ export const OrpCharacteristicWrapper: WithUUID<typeof Characteristic> = {
 
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
-  public _sideloadCharacteristics;
-  public emitCharacteristicWarningEvent;
-  public setupCharacteristicEventHandlers;
+  //public _sideloadCharacteristics;
+  //public emitCharacteristicWarningEvent;
+  //public setupCharacteristicEventHandlers;
+
   // Conductivity
   class ConductivitySensorService extends api.hap.Service {
     constructor(displayName: string, subtype?: string) {
