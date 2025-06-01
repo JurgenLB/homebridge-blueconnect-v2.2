@@ -1,10 +1,10 @@
 import { API, WithUUID } from 'homebridge';
-import { Characteristic, FLOAT, PAIRED_READ, NOTIFY  } from 'hap-nodejs';
+import { FLOAT, PAIRED_READ, NOTIFY  } from 'hap-nodejs';
 import {
   ConductivityCharacteristic,
   PhCharacteristic,
   OrpCharacteristic,
-} from "./customCharacteristics";
+} from './customCharacteristics';
 
 interface BlueDevice {
   blue_device_serial: string;
