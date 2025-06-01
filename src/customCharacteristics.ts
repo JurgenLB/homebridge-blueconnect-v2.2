@@ -1,10 +1,6 @@
-import { API, WithUUID } from 'homebridge';
+import { API } from 'homebridge';
 import { Formats, Perms } from 'hap-nodejs';
-import { StaticEventEmitterIteratorOptions } from 'events';
 
-
-//export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
-public API;
 
 interface BlueDevice {
   blue_device_serial: string;
@@ -15,10 +11,6 @@ interface BlueDevice {
   // "contract_servicePlan": "plus",
   // "battery_low": false,
 };
-
-//var ConductivityCharacteristic;
-//var PhCharacteristic;
-//var OrpCharacteristic;
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
   // Conductivity
@@ -40,7 +32,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
           Perms.NOTIFY,
         ],
       });
-      //this.value = this.getDefaultValue();
+
     }
   }
 
@@ -70,7 +62,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
           Perms.NOTIFY,
         ],
       });
-      //this.value = this.getDefaultValue();
+
     }
   }
 
@@ -100,7 +92,7 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
           Perms.NOTIFY,
         ],
       });
-      //this.value = this.getDefaultValue();
+
     }
   }
 
@@ -112,14 +104,13 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   }
 
   return {
-    ConductivityCharacteristic: new ConductivityCharacteristic() => ConductivityCharacteristic>,
-    PhCharacteristic: new PhCharacteristic() => PhCharacteristic>,
-    OrpCharacteristic: new OrpCharacteristic() => OrpCharacteristic>,
+    ConductivityCharacteristic: ConductivityCharacteristic,
+    PhCharacteristic: PhCharacteristic,
+    OrpCharacteristic: OrpCharacteristic,
     ConductivitySensorService,
     OrpSensorService,
     PhSensorService,
   };
-
-  // Export classes individually for direct imports
-  export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
 }
+
+export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };
