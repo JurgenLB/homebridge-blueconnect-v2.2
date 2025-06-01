@@ -16,9 +16,10 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   const conductivityServiceUUID = api.hap.uuid.generate('conductivity-service-' + blueDevice.blue_device_serial);
 
   class ConductivityCharacteristic extends api.hap.Characteristic {
+    static readonly UUID = conductivityCharacteristicUUID;
+
     constructor() {
-      super('Conductivity', conductivityCharacteristicUUID);
-      this.setProps({
+      super('Conductivity', conductivityCharacteristicUUID, {
         format: api.hap.Characteristic.Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
@@ -45,9 +46,10 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   const phServiceUUID = api.hap.uuid.generate('ph-service-' + blueDevice.blue_device_serial);
 
   class PhCharacteristic extends api.hap.Characteristic {
+    static readonly UUID = phCharacteristicUUID;
+
     constructor() {
-      super('pH', phCharacteristicUUID);
-      this.setProps({
+      super('pH', phCharacteristicUUID, {
         format: api.hap.Characteristic.Formats.FLOAT,
         unit: '',
         minValue: 0,
@@ -74,9 +76,10 @@ export function createCustomCharacteristicsAndServices(api: API, blueDevice: Blu
   const orpServiceUUID = api.hap.uuid.generate('orp-service-' + blueDevice.blue_device_serial);
 
   class OrpCharacteristic extends api.hap.Characteristic {
+    static readonly UUID = orpCharacteristicUUID;
+
     constructor() {
-      super('ORP', orpCharacteristicUUID);
-      this.setProps({
+      super('ORP', orpCharacteristicUUID, {
         format: api.hap.Characteristic.Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
