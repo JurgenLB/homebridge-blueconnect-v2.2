@@ -1,9 +1,6 @@
-import { API } from 'homebridge';
-import { Formats, Perms, Characteristic, WithUUID } from 'hap-nodejs';
-import { StaticEventEmitterOptions } from 'events';
-export type { StaticEventEmitterOptions };
+import { Formats, Perms, CharacteristicProps } from 'homebridge';
 
-interface BlueDevice {
+export declare interface BlueDevice {
   blue_device_serial: string;
   swimming_pool_id: string;
   city: string;
@@ -13,72 +10,83 @@ interface BlueDevice {
   // "battery_low": false,
 };
 
-// Conductivity
-class ConductivityCharacteristic extends Characteristic {
-  constructor(target: Service, api: API, blueDevice: BlueDevice) {
-    super('Conductivity', api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial), {
-      format: Formats.FLOAT,
-      unit: 'µS/cm',
-      minValue: 0,
-      maxValue: 2000,
-      minStep: 1,
-      perms: [
-        Perms.PAIRED_READ,
-        Perms.NOTIFY,
-      ],
-    });
-  }
-};
+export declare interface BlueDeviceFormat {
+    b: number; // battery level: 0.1-10
+    c: number; // conductivity: 0-2000 μS
+    o: number; // ORP active chloor: 0-2000 mV
+    p: number; // PH: 0-20
+    s: number; // Total Dissolved Solids:  g/L
+    t: number; // temperature: -273-100 °C actief chloor in mV
+}
 
-export const ConductivityCharacteristicWrapper: WithUUID<typeof Characteristic> = {
-  UUID: api.hap.uuid.generate('unique-id'),
-  new: () => new ConductivityCharacteristic(apiInstance, blueDeviceInstance),
-};
+export declare interface BlueDeviceFormat {
+    Battery: number;
+    Conductivity: number;
+    Orp: number;
+    Ph: number;
+    TDS: number;
+    Temperature: number;
+}
 
-// PH
-class PhCharacteristic extends Characteristic {
-  constructor(target: Service, api: API, blueDevice: BlueDevice) {
-    super('pH', api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial), {
-      format: Formats.FLOAT,
-      unit: '',
-      minValue: 0,
-      maxValue: 20,
-      minStep: 0.01,
-      perms: [
-        Perms.PAIRED_READ,
-        Perms.NOTIFY,
-      ],
-    });
-  }
-};
+// See https://github.com/homebridge/homebridge-plugin-template/issues/20 for more information
+export = (homebridge, effects: Array<String>) => {
+  const Charact = homebridge.hap.Characteristic;
 
-export const PhCharacteristicWrapper: WithUUID<typeof Characteristic> = {
-  UUID: api.hap.uuid.generate('unique-id'),
-  new: () => new PhCharacteristic(apiInstance, blueDeviceInstance),
-};
+  // Conductivity
+  return class ConductivityCharacteristic extends Charact {
+    constructor() {
+      super('Conductivity', api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial), {
+        format: Formats.FLOAT,
+        unit: 'µS/cm',
+        minValue: 0,
+        maxValue: 2000,
+        minStep: 1,
+        perms: [
+          Perms.PAIRED_READ,
+          Perms.NOTIFY,
+        ],
+      });
+      this.value = this.getDefaultValue();
+    }
+  };
 
-// ORP
-class OrpCharacteristic extends Characteristic {
-  constructor(target: Service, api: API, blueDevice: BlueDevice) {
-    super('ORP', api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial), {
-      format: Formats.FLOAT,
-      unit: 'mV',
-      minValue: 0,
-      maxValue: 2000,
-      minStep: 1,
-      perms: [
-        Perms.PAIRED_READ,
-        Perms.NOTIFY,
-      ],
-    });
-  }
-};
+  // PH
+  return class PhCharacteristic extends Charact {
+    constructor() {
+      super('pH', api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial), {
+        format: Formats.FLOAT,
+        unit: '',
+        minValue: 0,
+        maxValue: 20,
+        minStep: 0.01,
+        perms: [
+          Perms.PAIRED_READ,
+          Perms.NOTIFY,
+        ],
+      });
+      this.value = this.getDefaultValue();
+    }
+  };
 
-export const OrpCharacteristicWrapper: WithUUID<typeof Characteristic> = {
-  UUID: api.hap.uuid.generate('unique-id'),
-  new: () => new OrpCharacteristic(apiInstance, blueDeviceInstance),
-};
 
+  // ORP
+  return class OrpCharacteristic extends Charact {
+    constructor() {
+      super('ORP', api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial), {
+        format: Formats.FLOAT,
+        unit: 'mV',
+        minValue: 0,
+        maxValue: 2000,
+        minStep: 1,
+        perms: [
+          Perms.PAIRED_READ,
+          Perms.NOTIFY,
+        ],
+      });
+      this.value = this.getDefaultValue();
+    }
+  };
+}
 
 export function createCustomCharacteristicsAndServices(target: Service, api: API, blueDevice: BlueDevice) {
   //public _sideloadCharacteristics;
