@@ -44,7 +44,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     // Register custom characteristics before anything else
     //this.api = platform.api;
     //const blueDevice = this.accessory.context.device;
-    //createCustomCharacteristicsAndServices(api, blueDevice);
+    //createCustomCharacteristicsAndServices(private readonly platform: BlueConnectPlatform, api, blueDevice);
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     this.fakeGatoHistoryService = require('fakegato-history')(this.api);
