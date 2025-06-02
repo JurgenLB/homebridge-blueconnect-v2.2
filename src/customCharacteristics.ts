@@ -1,5 +1,5 @@
 import { API } from 'homebridge';
-import { Formats, Perms } from 'hap-nodejs';
+import { Formats, Perms, Characteristic, WithUUID } from 'hap-nodejs';
 import { StaticEventEmitterOptions } from "events";
 export type { StaticEventEmitterOptions };
 
@@ -15,7 +15,7 @@ interface BlueDevice {
 
 // Conductivity
 class ConductivityCharacteristic extends Characteristic {
-  constructor(api: API, blueDevice: BlueDevice) {
+  constructor(target: Service, api: API, blueDevice: BlueDevice) {
     super('Conductivity', api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
       unit: 'µS/cm',
@@ -37,7 +37,7 @@ export const ConductivityCharacteristicWrapper: WithUUID<typeof Characteristic> 
 
 // PH
 class PhCharacteristic extends Characteristic {
-  constructor(api: API, blueDevice: BlueDevice) {
+  constructor(target: Service, api: API, blueDevice: BlueDevice) {
     super('pH', api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
       unit: '',
@@ -59,7 +59,7 @@ export const PhCharacteristicWrapper: WithUUID<typeof Characteristic> = {
 
 // ORP
 class OrpCharacteristic extends Characteristic {
-  constructor(api: API, blueDevice: BlueDevice) {
+  constructor(target: Service, api: API, blueDevice: BlueDevice) {
     super('ORP', api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial), {
       format: Formats.FLOAT,
       unit: 'mV',
@@ -80,7 +80,7 @@ export const OrpCharacteristicWrapper: WithUUID<typeof Characteristic> = {
 };
 
 
-export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice) {
+export function createCustomCharacteristicsAndServices(target: Service, api: API, blueDevice: BlueDevice) {
   //public _sideloadCharacteristics;
   //public emitCharacteristicWarningEvent;
   //public setupCharacteristicEventHandlers;
