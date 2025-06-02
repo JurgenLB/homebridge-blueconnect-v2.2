@@ -1,6 +1,6 @@
 import { API } from 'homebridge';
 import { Formats, Perms, Characteristic, WithUUID } from 'hap-nodejs';
-import { StaticEventEmitterOptions } from "events";
+import { StaticEventEmitterOptions } from 'events';
 export type { StaticEventEmitterOptions };
 
 interface BlueDevice {
