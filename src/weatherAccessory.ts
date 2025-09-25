@@ -10,6 +10,7 @@ export class WeatherAccessory {
      * You should implement your own code to track the state of your accessory
      */
   private currentTemperature = 25;
+  private currentWeather = "is Offline";
 
   constructor(
         private readonly platform: BlueConnectPlatform,
@@ -68,10 +69,12 @@ export class WeatherAccessory {
       const weather = JSON.parse(weatherString);
 
       this.currentTemperature = weather.data.temperature_current;
+      this.currentWeather = weather.data.weather_current_description;
 
       this.loggingService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.currentTemperature });
 
       this.platform.log.debug('Weather temperature: ' + this.currentTemperature);
+      this.platform.log.debug('Weather : ' + this.currentWeather);
     } catch (error) {
       this.platform.log.error('Error getting weather: ' + error);
     }
