@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-import { createCustomCharacteristicsAndServices } from './customCharacteristics';
+import { createCustomCharacteristicsAndServices, ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic } from './customCharacteristics';
 
 export class BlueConnectAccessory {
   public currentCONDUCTIVITY = 0;
@@ -10,13 +10,6 @@ export class BlueConnectAccessory {
   public conductivityService: Service;
   public orpService: Service;
   public phService: Service;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private ConductivityCharacteristic: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private PhCharacteristic: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private OrpCharacteristic: any;
 
   constructor(
     public readonly platform: BlueConnectPlatform,
