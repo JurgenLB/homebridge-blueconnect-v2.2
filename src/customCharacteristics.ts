@@ -29,17 +29,12 @@ export declare interface BlueDeviceFormat {
 }
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   ConductivityCharacteristic: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PhCharacteristic: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   OrpCharacteristic: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ConductivitySensorService: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   OrpSensorService: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PhSensorService: any;
 } {
   const Charact = api.hap.Characteristic;
