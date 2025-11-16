@@ -29,13 +29,12 @@ export declare interface BlueDeviceFormat {
 }
 
 export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): {
-  
-  ConductivityCharacteristic: any;
-  PhCharacteristic: any;
-  OrpCharacteristic: any;
-  ConductivitySensorService: any;
-  OrpSensorService: any;
-  PhSensorService: any;
+  ConductivityCharacteristic: typeof ConductivityCharacteristic;
+  PhCharacteristic: typeof PhCharacteristic;
+  OrpCharacteristic: typeof OrpCharacteristic;
+  ConductivitySensorService: typeof ConductivitySensorService;
+  OrpSensorService: typeof OrpSensorService;
+  PhSensorService: typeof PhSensorService;
 } {
   const Charact = api.hap.Characteristic;
 
