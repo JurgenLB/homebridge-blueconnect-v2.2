@@ -1,4 +1,4 @@
-import { Formats, Perms, CharacteristicProps } from 'homebridge';
+import { Formats, Perms, API } from 'homebridge';
 
 export declare interface BlueDevice {
   blue_device_serial: string;
@@ -28,14 +28,28 @@ export declare interface BlueDeviceFormat {
     Temperature: number;
 }
 
-// See https://github.com/homebridge/homebridge-plugin-template/issues/20 for more information
-export = (homebridge, effects: Array<String>) => {
-  const Charact = homebridge.hap.Characteristic;
+export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ConductivityCharacteristic: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  PhCharacteristic: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  OrpCharacteristic: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ConductivitySensorService: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  OrpSensorService: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  PhSensorService: any;
+} {
+  const Charact = api.hap.Characteristic;
 
   // Conductivity
-  return class ConductivityCharacteristic extends Charact {
+  class ConductivityCharacteristic extends Charact {
+    static readonly UUID: string = api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial);
+
     constructor() {
-      super('Conductivity', api.hap.uuid.generate('conductivity-' + blueDevice.blue_device_serial), {
+      super('Conductivity', ConductivityCharacteristic.UUID, {
         format: Formats.FLOAT,
         unit: 'µS/cm',
         minValue: 0,
@@ -48,12 +62,14 @@ export = (homebridge, effects: Array<String>) => {
       });
       this.value = this.getDefaultValue();
     }
-  };
+  }
 
   // PH
-  return class PhCharacteristic extends Charact {
+  class PhCharacteristic extends Charact {
+    static readonly UUID: string = api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial);
+
     constructor() {
-      super('pH', api.hap.uuid.generate('ph-' + blueDevice.blue_device_serial), {
+      super('pH', PhCharacteristic.UUID, {
         format: Formats.FLOAT,
         unit: '',
         minValue: 0,
@@ -66,13 +82,14 @@ export = (homebridge, effects: Array<String>) => {
       });
       this.value = this.getDefaultValue();
     }
-  };
-
+  }
 
   // ORP
-  return class OrpCharacteristic extends Charact {
+  class OrpCharacteristic extends Charact {
+    static readonly UUID: string = api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial);
+
     constructor() {
-      super('ORP', api.hap.uuid.generate('orp-' + blueDevice.blue_device_serial), {
+      super('ORP', OrpCharacteristic.UUID, {
         format: Formats.FLOAT,
         unit: 'mV',
         minValue: 0,
@@ -85,19 +102,12 @@ export = (homebridge, effects: Array<String>) => {
       });
       this.value = this.getDefaultValue();
     }
-  };
-}
-
-export function createCustomCharacteristicsAndServices(target: Service, api: API, blueDevice: BlueDevice) {
-  //public _sideloadCharacteristics;
-  //public emitCharacteristicWarningEvent;
-  //public setupCharacteristicEventHandlers;
-
+  }
   // Conductivity
   class ConductivitySensorService extends api.hap.Service {
     constructor(displayName: string, subtype?: string) {
       super(displayName, api.hap.uuid.generate('conductivity-service-' + blueDevice.blue_device_serial), subtype);
-      this.addCharacteristic(new ConductivityCharacteristic(api, blueDevice));
+      this.addCharacteristic(new ConductivityCharacteristic());
     }
   }
 
@@ -105,7 +115,7 @@ export function createCustomCharacteristicsAndServices(target: Service, api: API
   class PhSensorService extends api.hap.Service {
     constructor(displayName: string, subtype?: string) {
       super(displayName, api.hap.uuid.generate('ph-service-' + blueDevice.blue_device_serial), subtype);
-      this.addCharacteristic(new PhCharacteristic(api, blueDevice));
+      this.addCharacteristic(new PhCharacteristic());
     }
   }
 
@@ -113,7 +123,7 @@ export function createCustomCharacteristicsAndServices(target: Service, api: API
   class OrpSensorService extends api.hap.Service {
     constructor(displayName: string, subtype?: string) {
       super(displayName, api.hap.uuid.generate('orp-service-' + blueDevice.blue_device_serial), subtype);
-      this.addCharacteristic(new OrpCharacteristic(api, blueDevice));
+      this.addCharacteristic(new OrpCharacteristic());
     }
   }
 
@@ -126,5 +136,3 @@ export function createCustomCharacteristicsAndServices(target: Service, api: API
     PhSensorService,
   };
 }
-
-export { ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic };

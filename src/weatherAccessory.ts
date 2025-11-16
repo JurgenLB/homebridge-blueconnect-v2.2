@@ -10,7 +10,7 @@ export class WeatherAccessory {
      * You should implement your own code to track the state of your accessory
      */
   private currentTemperature = 25;
-  private currentWeather = "is Offline";
+  private currentWeather = 'is Offline';
 
   constructor(
         private readonly platform: BlueConnectPlatform,
