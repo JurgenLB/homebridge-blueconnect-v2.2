@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-import { createCustomCharacteristicsAndServices, ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic } from './customCharacteristics';
+import { createCustomCharacteristicsAndServices } from './customCharacteristics';
 
 export class BlueConnectAccessory {
   public currentCONDUCTIVITY = 0;
