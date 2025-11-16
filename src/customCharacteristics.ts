@@ -1,4 +1,4 @@
-import { Formats, Perms, API } from 'homebridge';
+import { Formats, Perms, API, Characteristic, Service, WithUUID } from 'homebridge';
 
 export declare interface BlueDevice {
   blue_device_serial: string;
@@ -28,8 +28,16 @@ export declare interface BlueDeviceFormat {
     Temperature: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): any {
+export interface CustomCharacteristicsAndServices {
+  ConductivityCharacteristic: WithUUID<{new (): Characteristic}>;
+  PhCharacteristic: WithUUID<{new (): Characteristic}>;
+  OrpCharacteristic: WithUUID<{new (): Characteristic}>;
+  ConductivitySensorService: typeof Service;
+  OrpSensorService: typeof Service;
+  PhSensorService: typeof Service;
+}
+
+export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): CustomCharacteristicsAndServices {
   const Charact = api.hap.Characteristic;
 
   // Conductivity
