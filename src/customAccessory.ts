@@ -11,6 +11,14 @@ export class BlueConnectAccessory {
   public orpService: Service;
   public phService: Service;
 
+  // Add missing property declarations for the custom characteristic constructors
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public ConductivityCharacteristic: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public PhCharacteristic: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public OrpCharacteristic: any;
+
   constructor(
     public readonly platform: BlueConnectPlatform,
     public readonly accessory: PlatformAccessory,

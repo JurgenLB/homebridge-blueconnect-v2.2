@@ -28,14 +28,8 @@ export declare interface BlueDeviceFormat {
     Temperature: number;
 }
 
-export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): {
-  ConductivityCharacteristic: typeof ConductivityCharacteristic;
-  PhCharacteristic: typeof PhCharacteristic;
-  OrpCharacteristic: typeof OrpCharacteristic;
-  ConductivitySensorService: typeof ConductivitySensorService;
-  OrpSensorService: typeof OrpSensorService;
-  PhSensorService: typeof PhSensorService;
-} {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): any {
   const Charact = api.hap.Characteristic;
 
   // Conductivity
