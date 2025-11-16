@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-import { createCustomCharacteristicsAndServices, ConductivityCharacteristic, PhCharacteristic, OrpCharacteristic } from './customCharacteristics';
+import { createCustomCharacteristicsAndServices } from './customCharacteristics';
 
 export class BlueConnectAccessory {
   public currentCONDUCTIVITY = 0;
@@ -10,6 +10,13 @@ export class BlueConnectAccessory {
   public conductivityService: Service;
   public orpService: Service;
   public phService: Service;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private ConductivityCharacteristic: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private PhCharacteristic: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private OrpCharacteristic: any;
 
   constructor(
     public readonly platform: BlueConnectPlatform,
@@ -25,6 +32,11 @@ export class BlueConnectAccessory {
       PhCharacteristic,
       PhSensorService,
     } = createCustomCharacteristicsAndServices(this.platform.api, blueDevice);
+
+    // Store characteristic classes for later use
+    this.ConductivityCharacteristic = ConductivityCharacteristic;
+    this.PhCharacteristic = PhCharacteristic;
+    this.OrpCharacteristic = OrpCharacteristic;
 
     // Accessory Information (optional but recommended)
     this.accessory.getService(this.platform.api.hap.Service.AccessoryInformation)!
@@ -86,9 +98,9 @@ export class BlueConnectAccessory {
     ]);
 
     // update HomeKit with new values
-    this.conductivityService.updateCharacteristic(ConductivityCharacteristic, this.currentCONDUCTIVITY);
-    this.phService.updateCharacteristic(PhCharacteristic, this.currentPH);
-    this.orpService.updateCharacteristic(OrpCharacteristic, this.currentORP);
+    this.conductivityService.updateCharacteristic(this.ConductivityCharacteristic, this.currentCONDUCTIVITY);
+    this.phService.updateCharacteristic(this.PhCharacteristic, this.currentPH);
+    this.orpService.updateCharacteristic(this.OrpCharacteristic, this.currentORP);
   }
 
   async getCONDUCTIVITY() {
