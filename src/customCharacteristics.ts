@@ -1,4 +1,4 @@
-import { Formats, Perms, API } from 'homebridge';
+import { Formats, Perms, API, Characteristic, Service, WithUUID } from 'homebridge';
 
 export declare interface BlueDevice {
   blue_device_serial: string;
@@ -28,14 +28,16 @@ export declare interface BlueDeviceFormat {
     Temperature: number;
 }
 
-export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): {
-  ConductivityCharacteristic: typeof ConductivityCharacteristic;
-  PhCharacteristic: typeof PhCharacteristic;
-  OrpCharacteristic: typeof OrpCharacteristic;
-  ConductivitySensorService: typeof ConductivitySensorService;
-  OrpSensorService: typeof OrpSensorService;
-  PhSensorService: typeof PhSensorService;
-} {
+export interface CustomCharacteristicsAndServices {
+  ConductivityCharacteristic: WithUUID<{new (): Characteristic}>;
+  PhCharacteristic: WithUUID<{new (): Characteristic}>;
+  OrpCharacteristic: WithUUID<{new (): Characteristic}>;
+  ConductivitySensorService: typeof Service;
+  OrpSensorService: typeof Service;
+  PhSensorService: typeof Service;
+}
+
+export function createCustomCharacteristicsAndServices(api: API, blueDevice: BlueDevice): CustomCharacteristicsAndServices {
   const Charact = api.hap.Characteristic;
 
   // Conductivity

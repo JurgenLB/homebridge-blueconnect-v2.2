@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue, Characteristic, WithUUID } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { createCustomCharacteristicsAndServices } from './customCharacteristics';
 
@@ -10,6 +10,11 @@ export class BlueConnectAccessory {
   public conductivityService: Service;
   public orpService: Service;
   public phService: Service;
+
+  // Store references to custom characteristic constructors
+  public ConductivityCharacteristic: WithUUID<{new (): Characteristic}>;
+  public PhCharacteristic: WithUUID<{new (): Characteristic}>;
+  public OrpCharacteristic: WithUUID<{new (): Characteristic}>;
 
   constructor(
     public readonly platform: BlueConnectPlatform,
