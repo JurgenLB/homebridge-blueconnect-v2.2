@@ -12,7 +12,7 @@
     "homebridge-plugin"
   ],
   "engines": {
-    "node": "^18.20.4 || ^20.16.0 || ^22.6.0 || >=24",
+    "node": ">=24",
     "homebridge": "^1.8.0 || ^2.0.0-beta.0"
   },
   "scripts": {
@@ -30,17 +30,18 @@
   },
   "homepage": "https://github.com/taurgis/homebridge-blueconnect-v2#readme",
   "main": "dist/index.js",
+  "type": "module",
   "author": "Taurgis",
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^22.2.0 || >=24",
+    "@types/node": ">=24",
     "eslint": "^9.9.0",
     "homebridge": "^2.0.0-beta.72",
     "nodemon": "^3.1.4",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.0.1"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.0"
   }
 }
