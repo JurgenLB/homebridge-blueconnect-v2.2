@@ -3,7 +3,6 @@ import { API, Characteristic, Formats, Perms, Service } from 'homebridge';
 
 
 const DISPLAY_NAME = 'ORP';
-const UUID = 'E863F10F-079E-48FF-8F27-9C2605A29F52';
 
 /**
  * Attaches the 'Custom ORP' characteristic to the service.
@@ -17,7 +16,7 @@ export function attachCustomORPCharacteristic(target: Service, api: API): Charac
   if (target.testCharacteristic(DISPLAY_NAME)) {
     result = target.getCharacteristic(DISPLAY_NAME)!;
   } else {
-    result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, UUID, {
+    result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, api.hap.uuid.generate(DISPLAY_NAME), {
       format: Formats.UINT16,
       unit: 'mBar',
       maxValue: 1100,
