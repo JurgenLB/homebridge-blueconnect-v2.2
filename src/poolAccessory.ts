@@ -1,14 +1,22 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP';
+import { attachCustomPHCharacteristic } from './characteristics/PH';
+import { attachCustomConductivityCharacteristic } from './characteristics/Conductivity';
+
+const GUIDANCE_LANGUAGE = 'en';
 
 export class PoolAccessory {
-  private service: Service | null = null;
+  private temperatureService: Service | null = null;
+  private phService: Service | null = null;
+  private orpService: Service | null = null;
+  private conductivityService: Service | null = null;
   private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
 
   private currentTemperature = 25;
   private currentORP = 750;
   private currentPH = 0;
+  private currentConductivity = 0;
 
   constructor(
         private readonly platform: BlueConnectPlatform,
@@ -25,19 +33,28 @@ export class PoolAccessory {
               .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
               .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-            this.service = this.accessory.getService(
+            this.temperatureService = this.accessory.getService(
               this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
             );
 
-            this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+            this.temperatureService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
+            this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+
+            this.phService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'ph') ||
+              this.accessory.addService(this.platform.Service.AirQualitySensor, 'pH', 'ph');
+            attachCustomPHCharacteristic(this.phService, this.platform.api, accessory.context.device.blue_device_serial)
               .onGet(this.handleCurrentPHGet.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+
+            this.orpService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'orp') ||
+              this.accessory.addService(this.platform.Service.AirQualitySensor, 'ORP', 'orp');
+            attachCustomORPCharacteristic(this.orpService, this.platform.api, accessory.context.device.blue_device_serial)
               .onGet(this.handleCurrentORPGet.bind(this));
-            attachCustomORPCharacteristic(this.service, this.platform.api)
-              .onGet(this.handleCurrentORPGet.bind(this));
+
+            this.conductivityService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'conductivity') ||
+              this.accessory.addService(this.platform.Service.AirQualitySensor, 'Conductivity', 'conductivity');
+            attachCustomConductivityCharacteristic(this.conductivityService, this.platform.api, accessory.context.device.blue_device_serial)
+              .onGet(this.handleCurrentConductivityGet.bind(this));
 
             setInterval(() => {
               this.getPoolData().catch((error) => {
@@ -63,7 +80,7 @@ export class PoolAccessory {
    */
   async handleCurrentPHGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return this.currentPH * 10;
+      return this.currentPH;
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -75,6 +92,17 @@ export class PoolAccessory {
   async handleCurrentORPGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentORP;
+    } else {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+  }
+
+  /**
+     * Handle requests to get the current value of the "Current Conductivity" characteristic
+     */
+  async handleCurrentConductivityGet(): Promise<CharacteristicValue> {
+    if (this.platform.blueRiotAPI.isAuthenticated()) {
+      return this.currentConductivity;
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -112,6 +140,21 @@ export class PoolAccessory {
       this.platform.log.debug('Current temperature: ' + this.currentTemperature);
       this.platform.log.debug('Current ORP: ' + this.currentORP);
       this.platform.log.debug('Current pH: ' + this.currentPH);
+
+      const guidanceString = await this.platform.blueRiotAPI.getGuidance(
+        this.accessory.context.device.swimming_pool_id,
+        GUIDANCE_LANGUAGE,
+      );
+
+      this.platform.log.debug('Guidance: ' + guidanceString);
+
+      const guidance = JSON.parse(guidanceString);
+      const conductivityEntry = guidance?.data?.find((element: { name: string }) => element.name === 'conductivity');
+
+      if (conductivityEntry) {
+        this.currentConductivity = conductivityEntry.value;
+        this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
+      }
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + error);
     }

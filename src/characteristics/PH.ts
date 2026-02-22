@@ -1,28 +1,25 @@
-
 import { API, Characteristic, Formats, Perms, Service } from 'homebridge';
 
-
-const DISPLAY_NAME = 'ORP';
+const DISPLAY_NAME = 'pH';
 
 /**
- * Attaches the 'Custom ORP' characteristic to the service.
+ * Attaches the 'Custom pH' characteristic to the service.
  * @param target The service to which the characteristic should be attached.
  * @param api The Homebridge {@link API} instance in use for the plug-in.
  * @param deviceSerial The serial number of the device, used to generate a stable unique UUID.
  * @returns The {@link Characteristic} instance.
  */
-export function attachCustomORPCharacteristic(target: Service, api: API, deviceSerial: string): Characteristic {
+export function attachCustomPHCharacteristic(target: Service, api: API, deviceSerial: string): Characteristic {
   let result: Characteristic;
 
   if (target.testCharacteristic(DISPLAY_NAME)) {
     result = target.getCharacteristic(DISPLAY_NAME)!;
   } else {
-    result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, api.hap.uuid.generate('ORP' + deviceSerial), {
-      format: Formats.UINT16,
-      unit: 'mBar',
-      maxValue: 1100,
+    result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, api.hap.uuid.generate('PH' + deviceSerial), {
+      format: Formats.FLOAT,
+      maxValue: 14,
       minValue: 0,
-      minStep: 1,
+      minStep: 0.01,
       perms: [Perms.PAIRED_READ, Perms.NOTIFY],
     }));
   }
