@@ -38,12 +38,12 @@ export class PoolAccessory {
 
             this.phService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'ph') ||
               this.accessory.addService(this.platform.Service.AirQualitySensor, 'pH', 'ph');
-            attachCustomPHCharacteristic(this.phService, this.platform.api)
+            attachCustomPHCharacteristic(this.phService, this.platform.api, accessory.context.device.blue_device_serial)
               .onGet(this.handleCurrentPHGet.bind(this));
 
             this.orpService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'orp') ||
               this.accessory.addService(this.platform.Service.AirQualitySensor, 'ORP', 'orp');
-            attachCustomORPCharacteristic(this.orpService, this.platform.api)
+            attachCustomORPCharacteristic(this.orpService, this.platform.api, accessory.context.device.blue_device_serial)
               .onGet(this.handleCurrentORPGet.bind(this));
 
             setInterval(() => {
