@@ -4,7 +4,9 @@ import { attachCustomORPCharacteristic } from './characteristics/ORP';
 import { attachCustomPHCharacteristic } from './characteristics/PH';
 
 export class PoolAccessory {
-  private service: Service | null = null;
+  private temperatureService: Service | null = null;
+  private phService: Service | null = null;
+  private orpService: Service | null = null;
   private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
 
   private currentTemperature = 25;
@@ -26,16 +28,22 @@ export class PoolAccessory {
               .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
               .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-            this.service = this.accessory.getService(
+            this.temperatureService = this.accessory.getService(
               this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
             );
 
-            this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+            this.temperatureService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
+            this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
-            attachCustomPHCharacteristic(this.service, this.platform.api)
+
+            this.phService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'ph') ||
+              this.accessory.addService(this.platform.Service.AirQualitySensor, 'pH', 'ph');
+            attachCustomPHCharacteristic(this.phService, this.platform.api)
               .onGet(this.handleCurrentPHGet.bind(this));
-            attachCustomORPCharacteristic(this.service, this.platform.api)
+
+            this.orpService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'orp') ||
+              this.accessory.addService(this.platform.Service.AirQualitySensor, 'ORP', 'orp');
+            attachCustomORPCharacteristic(this.orpService, this.platform.api)
               .onGet(this.handleCurrentORPGet.bind(this));
 
             setInterval(() => {
