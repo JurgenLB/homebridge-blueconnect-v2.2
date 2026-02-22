@@ -1,6 +1,7 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP';
+import { attachCustomPHCharacteristic } from './characteristics/PH';
 
 export class PoolAccessory {
   private service: Service | null = null;
@@ -32,10 +33,8 @@ export class PoolAccessory {
             this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
             this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+            attachCustomPHCharacteristic(this.service, this.platform.api)
               .onGet(this.handleCurrentPHGet.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-              .onGet(this.handleCurrentORPGet.bind(this));
             attachCustomORPCharacteristic(this.service, this.platform.api)
               .onGet(this.handleCurrentORPGet.bind(this));
 
@@ -63,7 +62,7 @@ export class PoolAccessory {
    */
   async handleCurrentPHGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return this.currentPH * 10;
+      return this.currentPH;
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
