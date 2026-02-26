@@ -71,7 +71,9 @@ export class BlueriiotAPI {
     let cred = this.token?.credentials;
 
     const now = new Date().getTime() + (5 * 60 * 1000); // 5 minutes in the future
-    const expire = Date.parse(this.token.credentials.expiration);
+    // Prefer JWT token's exp claim (jwt-cpp equivalent), fallback to credentials expiration
+    const tokenExpiration = this.token.getTokenExpiration();
+    const expire = tokenExpiration ? tokenExpiration.getTime() : Date.parse(this.token.credentials.expiration);
 
     if (now >= expire) {
       await this.getToken();
