@@ -7,13 +7,13 @@ import { attachCustomConductivityCharacteristic } from './characteristics/Conduc
 const GUIDANCE_LANGUAGE = 'en';
 
 export class PoolAccessory {
-  private temperatureService: Service | null = null;
-  private phService: Service | null = null;
-  private orpService: Service | null = null;
-  private conductivityService: Service | null = null;
-  private phCharacteristic: Characteristic | null = null;
-  private orpCharacteristic: Characteristic | null = null;
-  private conductivityCharacteristic: Characteristic | null = null;
+  private temperatureService!: Service;
+  private phService!: Service;
+  private orpService!: Service;
+  private conductivityService!: Service;
+  private phCharacteristic!: Characteristic;
+  private orpCharacteristic!: Characteristic;
+  private conductivityCharacteristic!: Characteristic;
   private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
 
   private currentTemperature = 25;
@@ -28,49 +28,50 @@ export class PoolAccessory {
     this.accessory.log = this.platform.log;
     this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
 
-    this.getPoolData().then(() => {
-            // set accessory information
-            this.accessory.getService(this.platform.Service.AccessoryInformation)!
-              .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
-              .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
-              .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
-              .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
+    // set accessory information
+    this.accessory.getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
+      .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-            this.temperatureService = this.accessory.getService(
-              this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
-            );
+    this.temperatureService = this.accessory.getService(
+      this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
+    );
+    this.temperatureService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
+    this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+      .onGet(this.handleCurrentTemperatureGet.bind(this));
 
-            this.temperatureService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
-            this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-              .onGet(this.handleCurrentTemperatureGet.bind(this));
+    this.phService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'ph') ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor, 'pH', 'ph');
+    this.phService.getCharacteristic(this.platform.Characteristic.AirQuality)
+      .onGet(() => this.platform.Characteristic.AirQuality.GOOD);
+    this.phCharacteristic = attachCustomPHCharacteristic(this.phService, this.platform.api, accessory.context.device.blue_device_serial)
+      .onGet(this.handleCurrentPHGet.bind(this));
 
-            this.phService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'ph') ||
-              this.accessory.addService(this.platform.Service.AirQualitySensor, 'pH', 'ph');
-            this.phService.getCharacteristic(this.platform.Characteristic.AirQuality)
-              .onGet(() => this.platform.Characteristic.AirQuality.GOOD);
-            this.phCharacteristic = attachCustomPHCharacteristic(this.phService, this.platform.api, accessory.context.device.blue_device_serial)
-              .onGet(this.handleCurrentPHGet.bind(this));
+    this.orpService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'orp') ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor, 'ORP', 'orp');
+    this.orpService.getCharacteristic(this.platform.Characteristic.AirQuality)
+      .onGet(() => this.platform.Characteristic.AirQuality.GOOD);
+    this.orpCharacteristic = attachCustomORPCharacteristic(this.orpService, this.platform.api, accessory.context.device.blue_device_serial)
+      .onGet(this.handleCurrentORPGet.bind(this));
 
-            this.orpService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'orp') ||
-              this.accessory.addService(this.platform.Service.AirQualitySensor, 'ORP', 'orp');
-            this.orpService.getCharacteristic(this.platform.Characteristic.AirQuality)
-              .onGet(() => this.platform.Characteristic.AirQuality.GOOD);
-            this.orpCharacteristic = attachCustomORPCharacteristic(this.orpService, this.platform.api, accessory.context.device.blue_device_serial)
-              .onGet(this.handleCurrentORPGet.bind(this));
+    this.conductivityService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'conductivity') ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor, 'Conductivity', 'conductivity');
+    this.conductivityService.getCharacteristic(this.platform.Characteristic.AirQuality)
+      .onGet(() => this.platform.Characteristic.AirQuality.GOOD);
+    this.conductivityCharacteristic = attachCustomConductivityCharacteristic(this.conductivityService, this.platform.api, accessory.context.device.blue_device_serial)
+      .onGet(this.handleCurrentConductivityGet.bind(this));
 
-            this.conductivityService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'conductivity') ||
-              this.accessory.addService(this.platform.Service.AirQualitySensor, 'Conductivity', 'conductivity');
-            this.conductivityService.getCharacteristic(this.platform.Characteristic.AirQuality)
-              .onGet(() => this.platform.Characteristic.AirQuality.GOOD);
-            this.conductivityCharacteristic = attachCustomConductivityCharacteristic(this.conductivityService, this.platform.api, accessory.context.device.blue_device_serial)
-              .onGet(this.handleCurrentConductivityGet.bind(this));
-
-            setInterval(() => {
-              this.getPoolData().catch((error) => {
-                this.platform.log.error('Error getting current pool data: ' + error);
-              });
-            }, 60000 * (this.platform.config.refreshInterval || 30) );
+    this.getPoolData().catch((error) => {
+      this.platform.log.error('Error getting current pool data: ' + error);
     });
+
+    setInterval(() => {
+      this.getPoolData().catch((error) => {
+        this.platform.log.error('Error getting current pool data: ' + error);
+      });
+    }, 60000 * (this.platform.config.refreshInterval || 30));
   }
 
   /**
@@ -150,12 +151,8 @@ export class PoolAccessory {
       this.platform.log.debug('Current ORP: ' + this.currentORP);
       this.platform.log.debug('Current pH: ' + this.currentPH);
 
-      if (this.phCharacteristic) {
-        this.phCharacteristic.updateValue(this.currentPH);
-      }
-      if (this.orpCharacteristic) {
-        this.orpCharacteristic.updateValue(this.currentORP);
-      }
+      this.phCharacteristic.updateValue(this.currentPH);
+      this.orpCharacteristic.updateValue(this.currentORP);
 
       const guidanceString = await this.platform.blueRiotAPI.getGuidance(
         this.accessory.context.device.swimming_pool_id,
@@ -170,9 +167,7 @@ export class PoolAccessory {
       if (conductivityEntry) {
         this.currentConductivity = conductivityEntry.value;
         this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
-        if (this.conductivityCharacteristic) {
-          this.conductivityCharacteristic.updateValue(this.currentConductivity);
-        }
+        this.conductivityCharacteristic.updateValue(this.currentConductivity);
       }
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + error);
