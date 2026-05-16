@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue, Characteristic, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP.js';
 import { attachCustomPHCharacteristic } from './characteristics/PH.js';
@@ -11,9 +11,9 @@ export class PoolAccessory {
   private phService: Service | null = null;
   private orpService: Service | null = null;
   private conductivityService: Service | null = null;
-  private phCharacteristic: ReturnType<Service['getCharacteristic']> | null = null;
-  private orpCharacteristic: ReturnType<Service['getCharacteristic']> | null = null;
-  private conductivityCharacteristic: ReturnType<Service['getCharacteristic']> | null = null;
+  private phCharacteristic: Characteristic | null = null;
+  private orpCharacteristic: Characteristic | null = null;
+  private conductivityCharacteristic: Characteristic | null = null;
   private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
 
   private currentTemperature = 25;
