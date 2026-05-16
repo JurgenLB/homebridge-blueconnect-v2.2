@@ -8,9 +8,6 @@ const GUIDANCE_LANGUAGE = 'en';
 
 export class PoolAccessory {
   private temperatureService!: Service;
-  private phService!: Service;
-  private orpService!: Service;
-  private conductivityService!: Service;
   private phCharacteristic!: Characteristic;
   private orpCharacteristic!: Characteristic;
   private conductivityCharacteristic!: Characteristic;
@@ -43,19 +40,24 @@ export class PoolAccessory {
       .onGet(this.handleCurrentTemperatureGet.bind(this));
 
     this.removeLegacyAirQualityService('ph');
-    this.phService = this.temperatureService;
-    this.phCharacteristic = attachCustomPHCharacteristic(this.phService, this.platform.api, accessory.context.device.blue_device_serial)
+    this.phCharacteristic = attachCustomPHCharacteristic(
+      this.temperatureService,
+      this.platform.api,
+      accessory.context.device.blue_device_serial,
+    )
       .onGet(this.handleCurrentPHGet.bind(this));
 
     this.removeLegacyAirQualityService('orp');
-    this.orpService = this.temperatureService;
-    this.orpCharacteristic = attachCustomORPCharacteristic(this.orpService, this.platform.api, accessory.context.device.blue_device_serial)
+    this.orpCharacteristic = attachCustomORPCharacteristic(
+      this.temperatureService,
+      this.platform.api,
+      accessory.context.device.blue_device_serial,
+    )
       .onGet(this.handleCurrentORPGet.bind(this));
 
     this.removeLegacyAirQualityService('conductivity');
-    this.conductivityService = this.temperatureService;
     this.conductivityCharacteristic = attachCustomConductivityCharacteristic(
-      this.conductivityService,
+      this.temperatureService,
       this.platform.api,
       accessory.context.device.blue_device_serial,
     )
