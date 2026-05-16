@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/taurgis/homebridge-blueconnect-v2#readme",
   "main": "dist/index.js",
-  "type": "module",
   "author": "Taurgis",
   "devDependencies": {
     "@eslint/js": "^9.9.0",
