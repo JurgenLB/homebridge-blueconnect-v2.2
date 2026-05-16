@@ -43,16 +43,22 @@ export class PoolAccessory {
 
             this.phService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'ph') ||
               this.accessory.addService(this.platform.Service.AirQualitySensor, 'pH', 'ph');
+            this.phService.setCharacteristic(this.platform.Characteristic.AirQuality,
+              this.platform.Characteristic.AirQuality.GOOD);
             attachCustomPHCharacteristic(this.phService, this.platform.api, accessory.context.device.blue_device_serial)
               .onGet(this.handleCurrentPHGet.bind(this));
 
             this.orpService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'orp') ||
               this.accessory.addService(this.platform.Service.AirQualitySensor, 'ORP', 'orp');
+            this.orpService.setCharacteristic(this.platform.Characteristic.AirQuality,
+              this.platform.Characteristic.AirQuality.GOOD);
             attachCustomORPCharacteristic(this.orpService, this.platform.api, accessory.context.device.blue_device_serial)
               .onGet(this.handleCurrentORPGet.bind(this));
 
             this.conductivityService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, 'conductivity') ||
               this.accessory.addService(this.platform.Service.AirQualitySensor, 'Conductivity', 'conductivity');
+            this.conductivityService.setCharacteristic(this.platform.Characteristic.AirQuality,
+              this.platform.Characteristic.AirQuality.GOOD);
             attachCustomConductivityCharacteristic(this.conductivityService, this.platform.api, accessory.context.device.blue_device_serial)
               .onGet(this.handleCurrentConductivityGet.bind(this));
 
