@@ -1,8 +1,8 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-import { attachCustomORPCharacteristic } from './characteristics/ORP';
-import { attachCustomPHCharacteristic } from './characteristics/PH';
-import { attachCustomConductivityCharacteristic } from './characteristics/Conductivity';
+import { attachCustomORPCharacteristic } from './characteristics/ORP.js';
+import { attachCustomPHCharacteristic } from './characteristics/PH.js';
+import { attachCustomConductivityCharacteristic } from './characteristics/Conductivity.js';
 
 const GUIDANCE_LANGUAGE = 'en';
 

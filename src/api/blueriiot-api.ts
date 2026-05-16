@@ -1,4 +1,4 @@
-import { BlueToken, BlueCredentials } from './BlueToken';
+import { BlueToken, BlueCredentials } from './BlueToken.js';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const apiClientFactory = require('aws-api-gateway-client').default;
