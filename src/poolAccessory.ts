@@ -151,6 +151,7 @@ export class PoolAccessory {
       this.platform.log.debug('Current ORP: ' + this.currentORP);
       this.platform.log.debug('Current pH: ' + this.currentPH);
 
+      this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
       this.phCharacteristic.updateValue(this.currentPH);
       this.orpCharacteristic.updateValue(this.currentORP);
 
