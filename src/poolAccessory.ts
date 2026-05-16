@@ -43,21 +43,17 @@ export class PoolAccessory {
       .onGet(this.handleCurrentTemperatureGet.bind(this));
 
     this.removeLegacyAirQualityService('ph');
-    this.phService = this.getOrAddCustomMetricService('pH', 'ph', 'service-ph-');
+    this.phService = this.temperatureService;
     this.phCharacteristic = attachCustomPHCharacteristic(this.phService, this.platform.api, accessory.context.device.blue_device_serial)
       .onGet(this.handleCurrentPHGet.bind(this));
 
     this.removeLegacyAirQualityService('orp');
-    this.orpService = this.getOrAddCustomMetricService('ORP', 'orp', 'service-orp-');
+    this.orpService = this.temperatureService;
     this.orpCharacteristic = attachCustomORPCharacteristic(this.orpService, this.platform.api, accessory.context.device.blue_device_serial)
       .onGet(this.handleCurrentORPGet.bind(this));
 
     this.removeLegacyAirQualityService('conductivity');
-    this.conductivityService = this.getOrAddCustomMetricService(
-      'Conductivity',
-      'conductivity',
-      'service-conductivity-',
-    );
+    this.conductivityService = this.temperatureService;
     this.conductivityCharacteristic = attachCustomConductivityCharacteristic(
       this.conductivityService,
       this.platform.api,
@@ -82,21 +78,6 @@ export class PoolAccessory {
     if (legacyService) {
       this.accessory.removeService(legacyService);
     }
-  }
-
-  private getOrAddCustomMetricService(displayName: string, subtype: string, uuidSeed: string): Service {
-    const serviceUuid = this.platform.api.hap.uuid.generate(uuidSeed + this.accessory.context.device.blue_device_serial);
-    const existingService = this.accessory.services.find((service) => service.UUID === serviceUuid && service.subtype === subtype);
-
-    if (existingService) {
-      return existingService;
-    }
-
-    const customService = new this.platform.api.hap.Service(displayName, serviceUuid, subtype);
-    customService.setCharacteristic(this.platform.Characteristic.Name, displayName);
-    this.accessory.addService(customService);
-
-    return customService;
   }
 
   /**
