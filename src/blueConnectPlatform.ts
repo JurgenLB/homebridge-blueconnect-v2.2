@@ -6,7 +6,9 @@ import type {
   PlatformAccessory,
   PlatformConfig,
   Service,
-  } from 'homebridge' with { 'resolution-mode': 'import' };
+} from 'homebridge';
+
+import fakegatoHistory from 'fakegato-history';
 
 import { PoolAccessory } from './poolAccessory.js';
 import { LEGACY_METRIC_UUID_SEEDS, PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
@@ -32,8 +34,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
         public readonly config: PlatformConfig,
         public readonly api: API,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    this.fakeGatoHistoryService = require('fakegato-history')(this.api);
+    this.fakeGatoHistoryService = fakegatoHistory(this.api);
 
     this.Service = api.hap.Service;
     this.Characteristic = api.hap.Characteristic;

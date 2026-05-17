@@ -1,4 +1,4 @@
-import type { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge' with { 'resolution-mode': 'import' };
+import type { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 
 export class WeatherAccessory {
