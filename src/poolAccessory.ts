@@ -114,8 +114,13 @@ export class PoolAccessory {
   private getMetricValue(data: MetricEntry[], name: string, fallback: number): number {
     const rawValue = data.find((element) => element.name === name)?.value;
 
-    if (rawValue === null || rawValue === undefined) {
+    if (rawValue === undefined) {
       this.platform.log.warn(`Missing '${name}' value, keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
+      return fallback;
+    }
+
+    if (rawValue === null) {
+      this.platform.log.warn(`Null '${name}' value received, keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
       return fallback;
     }
 

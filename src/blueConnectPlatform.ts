@@ -162,10 +162,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     this.log.info(`Removing ${legacyAccessories.length} legacy metric accessory cache entries for: ${deviceSerial}`);
     this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, legacyAccessories);
 
-    for (let accessoryIndex = this.accessories.length - 1; accessoryIndex >= 0; accessoryIndex--) {
-      if (legacyAccessoryUuidSet.has(this.accessories[accessoryIndex].UUID)) {
-        this.accessories.splice(accessoryIndex, 1);
-      }
-    }
+    const retainedAccessories = this.accessories.filter((accessory) => !legacyAccessoryUuidSet.has(accessory.UUID));
+    this.accessories.splice(0, this.accessories.length, ...retainedAccessories);
   }
 }
