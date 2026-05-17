@@ -1,4 +1,12 @@
-import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
+import type {
+  API,
+  Characteristic,
+  DynamicPlatformPlugin,
+  Logging,
+  PlatformAccessory,
+  PlatformConfig,
+  Service,
+  } from 'homebridge' with { 'resolution-mode': 'import' };
 
 import { PoolAccessory } from './poolAccessory.js';
 import { LEGACY_METRIC_UUID_SEEDS, PLATFORM_NAME, PLUGIN_NAME } from './settings.js';

@@ -1,4 +1,4 @@
-import { API, Characteristic, Formats, Perms, Service } from 'homebridge';
+import type { API, Characteristic, Service } from 'homebridge' with { 'resolution-mode': 'import' };
 
 const DISPLAY_NAME = 'pH';
 
@@ -16,11 +16,11 @@ export function attachCustomPHCharacteristic(target: Service, api: API, deviceSe
     result = target.getCharacteristic(DISPLAY_NAME)!;
   } else {
     result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, api.hap.uuid.generate('PH' + deviceSerial), {
-      format: Formats.FLOAT,
+      format: api.hap.Formats.FLOAT,
       maxValue: 14,
       minValue: 0,
       minStep: 0.01,
-      perms: [Perms.PAIRED_READ, Perms.NOTIFY],
+      perms: [api.hap.Perms.PAIRED_READ, api.hap.Perms.NOTIFY],
     }));
   }
 

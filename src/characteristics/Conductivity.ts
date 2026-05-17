@@ -1,4 +1,4 @@
-import { API, Characteristic, Formats, Perms, Service } from 'homebridge';
+import type { API, Characteristic, Service } from 'homebridge' with { 'resolution-mode': 'import' };
 
 const DISPLAY_NAME = 'Conductivity';
 
@@ -16,12 +16,12 @@ export function attachCustomConductivityCharacteristic(target: Service, api: API
     result = target.getCharacteristic(DISPLAY_NAME)!;
   } else {
     result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, api.hap.uuid.generate('Conductivity' + deviceSerial), {
-      format: Formats.UINT16,
+      format: api.hap.Formats.UINT16,
       unit: 'µS/cm',
       maxValue: 10000,
       minValue: 0,
       minStep: 1,
-      perms: [Perms.PAIRED_READ, Perms.NOTIFY],
+      perms: [api.hap.Perms.PAIRED_READ, api.hap.Perms.NOTIFY],
     }));
   }
 

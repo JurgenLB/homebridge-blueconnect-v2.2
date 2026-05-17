@@ -1,5 +1,5 @@
 
-import { API, Characteristic, Formats, Perms, Service } from 'homebridge';
+import type { API, Characteristic, Service } from 'homebridge' with { 'resolution-mode': 'import' };
 
 
 const DISPLAY_NAME = 'ORP';
@@ -18,12 +18,12 @@ export function attachCustomORPCharacteristic(target: Service, api: API, deviceS
     result = target.getCharacteristic(DISPLAY_NAME)!;
   } else {
     result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, api.hap.uuid.generate('ORP' + deviceSerial), {
-      format: Formats.UINT16,
+      format: api.hap.Formats.UINT16,
       unit: 'mBar',
       maxValue: 1100,
       minValue: 0,
       minStep: 1,
-      perms: [Perms.PAIRED_READ, Perms.NOTIFY],
+      perms: [api.hap.Perms.PAIRED_READ, api.hap.Perms.NOTIFY],
     }));
   }
 
