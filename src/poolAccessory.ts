@@ -8,10 +8,10 @@ const GUIDANCE_LANGUAGE = 'en';
 type MetricEntry = { name?: string; value?: number | string | null };
 
 export class PoolAccessory {
-  private temperatureService: Service;
-  private phCharacteristic: Characteristic;
-  private orpCharacteristic: Characteristic;
-  private conductivityCharacteristic: Characteristic;
+  private temperatureService: Service | null = null;
+  private phCharacteristic: Characteristic | null = null;
+  private orpCharacteristic: Characteristic | null = null;
+  private conductivityCharacteristic: Characteristic | null = null;
   private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
 
   private currentTemperature = 25;
@@ -33,16 +33,17 @@ export class PoolAccessory {
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
-    this.temperatureService = this.accessory.getService(
+    const temperatureService = this.accessory.getService(
       this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
     );
-    this.temperatureService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
-    this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+    this.temperatureService = temperatureService;
+    temperatureService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
+    temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.handleCurrentTemperatureGet.bind(this));
 
     this.removeLegacyMetricServices('ph', 'service-ph-');
     this.phCharacteristic = attachCustomPHCharacteristic(
-      this.temperatureService,
+      temperatureService,
       this.platform.api,
       accessory.context.device.blue_device_serial,
     )
@@ -50,7 +51,7 @@ export class PoolAccessory {
 
     this.removeLegacyMetricServices('orp', 'service-orp-');
     this.orpCharacteristic = attachCustomORPCharacteristic(
-      this.temperatureService,
+      temperatureService,
       this.platform.api,
       accessory.context.device.blue_device_serial,
     )
@@ -58,7 +59,7 @@ export class PoolAccessory {
 
     this.removeLegacyMetricServices('conductivity', 'service-conductivity-');
     this.conductivityCharacteristic = attachCustomConductivityCharacteristic(
-      this.temperatureService,
+      temperatureService,
       this.platform.api,
       accessory.context.device.blue_device_serial,
     )
@@ -92,14 +93,14 @@ export class PoolAccessory {
     const rawValue = data.find((element) => element.name === name)?.value;
 
     if (rawValue === null || rawValue === undefined) {
-      this.platform.log.warn(`Missing or invalid '${name}' value, keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
+      this.platform.log.warn(`Missing '${name}' value, keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
       return fallback;
     }
 
     const parsedValue = Number(rawValue);
 
     if (!Number.isFinite(parsedValue)) {
-      this.platform.log.warn(`Missing or invalid '${name}' value, keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
+      this.platform.log.warn(`Invalid '${name}' value '${rawValue}', keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
       return fallback;
     }
 
@@ -151,6 +152,11 @@ export class PoolAccessory {
   }
 
   async getPoolData() {
+    if (!this.temperatureService || !this.phCharacteristic || !this.orpCharacteristic || !this.conductivityCharacteristic) {
+      this.platform.log.warn(`Metric services are not initialized for ${this.accessory.context.device.blue_device_serial}`);
+      return;
+    }
+
     this.platform.log.debug(
       'Getting current temperature for ' +
         this.accessory.context.device.blue_device_serial +
