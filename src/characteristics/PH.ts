@@ -1,4 +1,4 @@
-import type { API, Characteristic, Service } from 'homebridge';
+import type { API, Characteristic, Service } from 'homebridge' with { 'resolution-mode': 'import' };
 
 const DISPLAY_NAME = 'pH';
 

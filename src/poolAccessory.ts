@@ -1,4 +1,4 @@
-import type { Service, PlatformAccessory, CharacteristicValue, Characteristic, Logging } from 'homebridge';
+import type { Service, PlatformAccessory, CharacteristicValue, Characteristic, Logging } from 'homebridge' with { 'resolution-mode': 'import' };
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP.js';
 import { attachCustomPHCharacteristic } from './characteristics/PH.js';
