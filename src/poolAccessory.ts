@@ -5,6 +5,7 @@ import { attachCustomPHCharacteristic } from './characteristics/PH.js';
 import { attachCustomConductivityCharacteristic } from './characteristics/Conductivity.js';
 
 const GUIDANCE_LANGUAGE = 'en';
+const LEGACY_METRIC_SERVICE_UUID_SEEDS = ['service-ph-', 'service-orp-', 'service-conductivity-'];
 type MetricEntry = { name?: string; value?: number | string | null };
 
 export class PoolAccessory {
@@ -41,7 +42,7 @@ export class PoolAccessory {
     temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.handleCurrentTemperatureGet.bind(this));
 
-    this.removeLegacyMetricServices('ph', 'service-ph-');
+    this.removeLegacyMetricServices();
     this.phCharacteristic = attachCustomPHCharacteristic(
       temperatureService,
       this.platform.api,
@@ -49,7 +50,6 @@ export class PoolAccessory {
     )
       .onGet(this.handleCurrentPHGet.bind(this));
 
-    this.removeLegacyMetricServices('orp', 'service-orp-');
     this.orpCharacteristic = attachCustomORPCharacteristic(
       temperatureService,
       this.platform.api,
@@ -57,7 +57,6 @@ export class PoolAccessory {
     )
       .onGet(this.handleCurrentORPGet.bind(this));
 
-    this.removeLegacyMetricServices('conductivity', 'service-conductivity-');
     this.conductivityCharacteristic = attachCustomConductivityCharacteristic(
       temperatureService,
       this.platform.api,
@@ -76,12 +75,19 @@ export class PoolAccessory {
     }, 60000 * (this.platform.config.refreshInterval || 30));
   }
 
-  private removeLegacyMetricServices(subtype: string, legacyServiceUuidSeed: string) {
-    const legacyServiceUuid = this.platform.api.hap.uuid.generate(legacyServiceUuidSeed + this.accessory.context.device.blue_device_serial);
-    const servicesToRemove = this.accessory.services.filter((service) =>
-      (service.UUID === this.platform.Service.AirQualitySensor.UUID && service.subtype === subtype)
-      || (service.UUID === legacyServiceUuid && service.subtype === subtype),
+  private removeLegacyMetricServices() {
+    const legacyServiceUuids = LEGACY_METRIC_SERVICE_UUID_SEEDS.map((seed) =>
+      this.platform.api.hap.uuid.generate(seed + this.accessory.context.device.blue_device_serial),
     );
+    const servicesToRemove = this.accessory.services.filter((service) =>
+      service.UUID === this.platform.Service.AirQualitySensor.UUID
+      || legacyServiceUuids.includes(service.UUID),
+    );
+
+    if (servicesToRemove.length > 0) {
+      this.platform.log.info(`Removing ${servicesToRemove.length} legacy metric services for: ${this.accessory.context.device.blue_device_serial}`);
+    }
+
     servicesToRemove.forEach((service) => this.accessory.removeService(service));
   }
 

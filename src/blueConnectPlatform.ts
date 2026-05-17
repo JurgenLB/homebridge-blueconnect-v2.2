@@ -6,6 +6,8 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { BlueriiotAPI } from './api/blueriiot-api.js';
 import { WeatherAccessory } from './weatherAccessory.js';
 
+const LEGACY_METRIC_ACCESSORY_UUID_SEEDS = ['service-ph-', 'service-orp-', 'service-conductivity-'];
+
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
@@ -126,6 +128,8 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   }
 
   private processBlueDevice(blueDevice: { blue_device_serial: string }) {
+    this.removeLegacyMetricAccessories(blueDevice.blue_device_serial);
+
     const uuid = this.api.hap.uuid.generate(blueDevice.blue_device_serial);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
@@ -144,5 +148,26 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
 
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }
+  }
+
+  private removeLegacyMetricAccessories(deviceSerial: string) {
+    const legacyAccessoryUuids = LEGACY_METRIC_ACCESSORY_UUID_SEEDS.map((seed) => this.api.hap.uuid.generate(seed + deviceSerial));
+    const legacyAccessories = this.accessories.filter((accessory) =>
+      legacyAccessoryUuids.includes(accessory.UUID),
+    );
+
+    if (legacyAccessories.length === 0) {
+      return;
+    }
+
+    this.log.info(`Removing ${legacyAccessories.length} legacy metric accessory cache entries for:`, deviceSerial);
+    this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, legacyAccessories);
+
+    legacyAccessories.forEach((legacyAccessory) => {
+      const accessoryIndex = this.accessories.findIndex((accessory) => accessory.UUID === legacyAccessory.UUID);
+      if (accessoryIndex >= 0) {
+        this.accessories.splice(accessoryIndex, 1);
+      }
+    });
   }
 }
