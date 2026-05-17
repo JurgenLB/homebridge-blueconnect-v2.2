@@ -5,7 +5,7 @@ import { attachCustomPHCharacteristic } from './characteristics/PH.js';
 import { attachCustomConductivityCharacteristic } from './characteristics/Conductivity.js';
 
 const GUIDANCE_LANGUAGE = 'en';
-type MetricEntry = { name?: string; value?: unknown };
+type MetricEntry = { name?: string; value?: number | string | null };
 
 export class PoolAccessory {
   private temperatureService: Service;
@@ -162,6 +162,9 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
+      if (!Array.isArray(lastMeasurement?.data)) {
+        this.platform.log.warn(`Missing measurement data array for ${this.accessory.context.device.blue_device_serial}`);
+      }
       const measurementData: MetricEntry[] = Array.isArray(lastMeasurement?.data) ? lastMeasurement.data : [];
       this.currentTemperature = this.getMetricValue(measurementData, 'temperature', this.currentTemperature);
       this.currentORP = this.getMetricValue(measurementData, 'orp', this.currentORP);
@@ -190,6 +193,9 @@ export class PoolAccessory {
       this.platform.log.debug('Guidance: ' + guidanceString);
 
       const guidance = JSON.parse(guidanceString);
+      if (!Array.isArray(guidance?.data)) {
+        this.platform.log.warn(`Missing guidance data array for ${this.accessory.context.device.blue_device_serial}`);
+      }
       const guidanceData: MetricEntry[] = Array.isArray(guidance?.data) ? guidance.data : [];
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
       this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
