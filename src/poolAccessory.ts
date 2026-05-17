@@ -90,6 +90,12 @@ export class PoolAccessory {
 
   private getMetricValue(data: MetricEntry[], name: string, fallback: number): number {
     const rawValue = data.find((element) => element.name === name)?.value;
+
+    if (rawValue === null || rawValue === undefined) {
+      this.platform.log.warn(`Missing or invalid '${name}' value, keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
+      return fallback;
+    }
+
     const parsedValue = Number(rawValue);
 
     if (!Number.isFinite(parsedValue)) {
@@ -162,10 +168,11 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
-      if (!Array.isArray(lastMeasurement?.data)) {
+      const hasMeasurementData = Array.isArray(lastMeasurement?.data);
+      if (!hasMeasurementData) {
         this.platform.log.warn(`Missing measurement data array for ${this.accessory.context.device.blue_device_serial}`);
       }
-      const measurementData: MetricEntry[] = Array.isArray(lastMeasurement?.data) ? lastMeasurement.data : [];
+      const measurementData: MetricEntry[] = hasMeasurementData ? lastMeasurement.data : [];
       this.currentTemperature = this.getMetricValue(measurementData, 'temperature', this.currentTemperature);
       this.currentORP = this.getMetricValue(measurementData, 'orp', this.currentORP);
       this.currentPH = this.getMetricValue(measurementData, 'ph', this.currentPH);
@@ -193,10 +200,11 @@ export class PoolAccessory {
       this.platform.log.debug('Guidance: ' + guidanceString);
 
       const guidance = JSON.parse(guidanceString);
-      if (!Array.isArray(guidance?.data)) {
+      const hasGuidanceData = Array.isArray(guidance?.data);
+      if (!hasGuidanceData) {
         this.platform.log.warn(`Missing guidance data array for ${this.accessory.context.device.blue_device_serial}`);
       }
-      const guidanceData: MetricEntry[] = Array.isArray(guidance?.data) ? guidance.data : [];
+      const guidanceData: MetricEntry[] = hasGuidanceData ? guidance.data : [];
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
       this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
       this.conductivityCharacteristic.updateValue(this.currentConductivity);
