@@ -5,6 +5,7 @@ import { attachCustomPHCharacteristic } from './characteristics/PH.js';
 import { attachCustomConductivityCharacteristic } from './characteristics/Conductivity.js';
 
 const GUIDANCE_LANGUAGE = 'en';
+type MetricEntry = { name?: string; value?: unknown };
 
 export class PoolAccessory {
   private temperatureService!: Service;
@@ -39,7 +40,7 @@ export class PoolAccessory {
     this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.handleCurrentTemperatureGet.bind(this));
 
-    this.removeLegacyAirQualityService('ph');
+    this.removeLegacyMetricServices('ph');
     this.phCharacteristic = attachCustomPHCharacteristic(
       this.temperatureService,
       this.platform.api,
@@ -47,7 +48,7 @@ export class PoolAccessory {
     )
       .onGet(this.handleCurrentPHGet.bind(this));
 
-    this.removeLegacyAirQualityService('orp');
+    this.removeLegacyMetricServices('orp');
     this.orpCharacteristic = attachCustomORPCharacteristic(
       this.temperatureService,
       this.platform.api,
@@ -55,7 +56,7 @@ export class PoolAccessory {
     )
       .onGet(this.handleCurrentORPGet.bind(this));
 
-    this.removeLegacyAirQualityService('conductivity');
+    this.removeLegacyMetricServices('conductivity');
     this.conductivityCharacteristic = attachCustomConductivityCharacteristic(
       this.temperatureService,
       this.platform.api,
@@ -64,22 +65,35 @@ export class PoolAccessory {
       .onGet(this.handleCurrentConductivityGet.bind(this));
 
     this.getPoolData().catch((error) => {
-      this.platform.log.error('Error getting current pool data: ' + error);
+      this.platform.log.error('Error getting current pool data: ' + this.formatError(error));
     });
 
     setInterval(() => {
       this.getPoolData().catch((error) => {
-        this.platform.log.error('Error getting current pool data: ' + error);
+        this.platform.log.error('Error getting current pool data: ' + this.formatError(error));
       });
     }, 60000 * (this.platform.config.refreshInterval || 30));
   }
 
-  private removeLegacyAirQualityService(subtype: string) {
-    const legacyService = this.accessory.getServiceById(this.platform.Service.AirQualitySensor, subtype);
+  private removeLegacyMetricServices(subtype: string) {
+    const servicesToRemove = this.accessory.services.filter((service) => service.subtype === subtype);
+    servicesToRemove.forEach((service) => this.accessory.removeService(service));
+  }
 
-    if (legacyService) {
-      this.accessory.removeService(legacyService);
+  private formatError(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+  }
+
+  private getMetricValue(data: MetricEntry[], name: string, fallback: number): number {
+    const rawValue = data.find((element) => element.name === name)?.value;
+    const parsedValue = Number(rawValue);
+
+    if (!Number.isFinite(parsedValue)) {
+      this.platform.log.warn(`Missing or invalid '${name}' value, keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
+      return fallback;
     }
+
+    return parsedValue;
   }
 
   /**
@@ -144,9 +158,10 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
-      this.currentTemperature = lastMeasurement.data.find((element: { name: string }) => element.name === 'temperature').value;
-      this.currentORP = lastMeasurement.data.find((element: { name: string }) => element.name === 'orp').value;
-      this.currentPH = lastMeasurement.data.find((element: { name: string }) => element.name === 'ph').value;
+      const measurementData: MetricEntry[] = Array.isArray(lastMeasurement?.data) ? lastMeasurement.data : [];
+      this.currentTemperature = this.getMetricValue(measurementData, 'temperature', this.currentTemperature);
+      this.currentORP = this.getMetricValue(measurementData, 'orp', this.currentORP);
+      this.currentPH = this.getMetricValue(measurementData, 'ph', this.currentPH);
 
       this.loggingService.addEntry({
         time: Math.round(new Date().valueOf() / 1000),
@@ -171,15 +186,12 @@ export class PoolAccessory {
       this.platform.log.debug('Guidance: ' + guidanceString);
 
       const guidance = JSON.parse(guidanceString);
-      const conductivityEntry = guidance?.data?.find((element: { name: string }) => element.name === 'conductivity');
-
-      if (conductivityEntry) {
-        this.currentConductivity = conductivityEntry.value;
-        this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
-        this.conductivityCharacteristic.updateValue(this.currentConductivity);
-      }
+      const guidanceData: MetricEntry[] = Array.isArray(guidance?.data) ? guidance.data : [];
+      this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
+      this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
+      this.conductivityCharacteristic.updateValue(this.currentConductivity);
     } catch (error) {
-      this.platform.log.error('Error getting last measurement: ' + error);
+      this.platform.log.error('Error getting last measurement: ' + this.formatError(error));
     }
   }
 }
