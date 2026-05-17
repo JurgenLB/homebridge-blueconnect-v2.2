@@ -1,12 +1,10 @@
 import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 
 import { PoolAccessory } from './poolAccessory.js';
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
+import { LEGACY_METRIC_UUID_SEEDS, PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 
 import { BlueriiotAPI } from './api/blueriiot-api.js';
 import { WeatherAccessory } from './weatherAccessory.js';
-
-const LEGACY_METRIC_ACCESSORY_UUID_SEEDS = ['service-ph-', 'service-orp-', 'service-conductivity-'];
 
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
@@ -151,7 +149,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   }
 
   private removeLegacyMetricAccessories(deviceSerial: string) {
-    const legacyAccessoryUuids = LEGACY_METRIC_ACCESSORY_UUID_SEEDS.map((seed) => this.api.hap.uuid.generate(seed + deviceSerial));
+    const legacyAccessoryUuids = LEGACY_METRIC_UUID_SEEDS.map((seed) => this.api.hap.uuid.generate(seed + deviceSerial));
     const legacyAccessories = this.accessories.filter((accessory) =>
       legacyAccessoryUuids.includes(accessory.UUID),
     );

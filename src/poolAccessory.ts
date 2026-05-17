@@ -3,10 +3,16 @@ import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP.js';
 import { attachCustomPHCharacteristic } from './characteristics/PH.js';
 import { attachCustomConductivityCharacteristic } from './characteristics/Conductivity.js';
+import { LEGACY_METRIC_UUID_SEEDS } from './settings.js';
 
 const GUIDANCE_LANGUAGE = 'en';
-const LEGACY_METRIC_SERVICE_UUID_SEEDS = ['service-ph-', 'service-orp-', 'service-conductivity-'];
 type MetricEntry = { name?: string; value?: number | string | null };
+type MetricBindings = {
+  temperatureService: Service;
+  phCharacteristic: Characteristic;
+  orpCharacteristic: Characteristic;
+  conductivityCharacteristic: Characteristic;
+};
 
 export class PoolAccessory {
   private temperatureService: Service | null = null;
@@ -78,7 +84,7 @@ export class PoolAccessory {
   }
 
   private removeLegacyMetricServices() {
-    const legacyServiceUuids = LEGACY_METRIC_SERVICE_UUID_SEEDS.map((seed) =>
+    const legacyServiceUuids = LEGACY_METRIC_UUID_SEEDS.map((seed) =>
       this.platform.api.hap.uuid.generate(seed + this.accessory.context.device.blue_device_serial),
     );
     const servicesToRemove = this.accessory.services.filter((service) =>
@@ -97,6 +103,14 @@ export class PoolAccessory {
     return error instanceof Error ? error.stack || error.message : String(error);
   }
 
+  /**
+   * Returns the parsed numeric metric value from the API payload.
+   * Falls back to the previous value when the metric is missing or invalid.
+   * @param data Metric entries from the API payload.
+   * @param name The metric name to extract.
+   * @param fallback The previous metric value to keep when parsing fails.
+   * @returns The parsed metric value or the provided fallback.
+   */
   private getMetricValue(data: MetricEntry[], name: string, fallback: number): number {
     const rawValue = data.find((element) => element.name === name)?.value;
 
@@ -113,6 +127,20 @@ export class PoolAccessory {
     }
 
     return parsedValue;
+  }
+
+  private getMetricBindings(): MetricBindings | null {
+    if (!this.temperatureService || !this.phCharacteristic || !this.orpCharacteristic || !this.conductivityCharacteristic) {
+      this.platform.log.warn(`Metric characteristics are not initialized for ${this.accessory.context.device.blue_device_serial}`);
+      return null;
+    }
+
+    return {
+      temperatureService: this.temperatureService,
+      phCharacteristic: this.phCharacteristic,
+      orpCharacteristic: this.orpCharacteristic,
+      conductivityCharacteristic: this.conductivityCharacteristic,
+    };
   }
 
   /**
@@ -160,6 +188,11 @@ export class PoolAccessory {
   }
 
   async getPoolData() {
+    const metricBindings = this.getMetricBindings();
+    if (!metricBindings) {
+      return;
+    }
+
     this.platform.log.debug(
       'Getting current temperature for ' +
         this.accessory.context.device.blue_device_serial +
@@ -197,9 +230,9 @@ export class PoolAccessory {
       this.platform.log.debug('Current ORP: ' + this.currentORP);
       this.platform.log.debug('Current pH: ' + this.currentPH);
 
-      this.temperatureService!.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
-      this.phCharacteristic!.updateValue(this.currentPH);
-      this.orpCharacteristic!.updateValue(this.currentORP);
+      metricBindings.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
+      metricBindings.phCharacteristic.updateValue(this.currentPH);
+      metricBindings.orpCharacteristic.updateValue(this.currentORP);
 
       const guidanceString = await this.platform.blueRiotAPI.getGuidance(
         this.accessory.context.device.swimming_pool_id,
@@ -216,7 +249,7 @@ export class PoolAccessory {
       const guidanceData: MetricEntry[] = hasGuidanceData ? guidance.data : [];
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
       this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
-      this.conductivityCharacteristic!.updateValue(this.currentConductivity);
+      metricBindings.conductivityCharacteristic.updateValue(this.currentConductivity);
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + this.formatError(error));
     }

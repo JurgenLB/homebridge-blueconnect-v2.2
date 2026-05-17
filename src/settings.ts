@@ -8,3 +8,4 @@ export const PLATFORM_NAME = 'BlueRiiot';
  */
 export const PLUGIN_NAME = 'homebridge-blueconnect-v2';
 
+export const LEGACY_METRIC_UUID_SEEDS = ['service-ph-', 'service-orp-', 'service-conductivity-'];
