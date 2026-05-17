@@ -8,10 +8,10 @@ const GUIDANCE_LANGUAGE = 'en';
 type MetricEntry = { name?: string; value?: unknown };
 
 export class PoolAccessory {
-  private temperatureService!: Service;
-  private phCharacteristic!: Characteristic;
-  private orpCharacteristic!: Characteristic;
-  private conductivityCharacteristic!: Characteristic;
+  private temperatureService: Service;
+  private phCharacteristic: Characteristic;
+  private orpCharacteristic: Characteristic;
+  private conductivityCharacteristic: Characteristic;
   private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
 
   private currentTemperature = 25;
@@ -40,7 +40,7 @@ export class PoolAccessory {
     this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.handleCurrentTemperatureGet.bind(this));
 
-    this.removeLegacyMetricServices('ph');
+    this.removeLegacyMetricServices('ph', 'service-ph-');
     this.phCharacteristic = attachCustomPHCharacteristic(
       this.temperatureService,
       this.platform.api,
@@ -48,7 +48,7 @@ export class PoolAccessory {
     )
       .onGet(this.handleCurrentPHGet.bind(this));
 
-    this.removeLegacyMetricServices('orp');
+    this.removeLegacyMetricServices('orp', 'service-orp-');
     this.orpCharacteristic = attachCustomORPCharacteristic(
       this.temperatureService,
       this.platform.api,
@@ -56,7 +56,7 @@ export class PoolAccessory {
     )
       .onGet(this.handleCurrentORPGet.bind(this));
 
-    this.removeLegacyMetricServices('conductivity');
+    this.removeLegacyMetricServices('conductivity', 'service-conductivity-');
     this.conductivityCharacteristic = attachCustomConductivityCharacteristic(
       this.temperatureService,
       this.platform.api,
@@ -75,8 +75,12 @@ export class PoolAccessory {
     }, 60000 * (this.platform.config.refreshInterval || 30));
   }
 
-  private removeLegacyMetricServices(subtype: string) {
-    const servicesToRemove = this.accessory.services.filter((service) => service.subtype === subtype);
+  private removeLegacyMetricServices(subtype: string, legacyServiceUuidSeed: string) {
+    const legacyServiceUuid = this.platform.api.hap.uuid.generate(legacyServiceUuidSeed + this.accessory.context.device.blue_device_serial);
+    const servicesToRemove = this.accessory.services.filter((service) =>
+      (service.UUID === this.platform.Service.AirQualitySensor.UUID && service.subtype === subtype)
+      || (service.UUID === legacyServiceUuid && service.subtype === subtype),
+    );
     servicesToRemove.forEach((service) => this.accessory.removeService(service));
   }
 
