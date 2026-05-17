@@ -150,8 +150,9 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
 
   private removeLegacyMetricAccessories(deviceSerial: string) {
     const legacyAccessoryUuids = LEGACY_METRIC_UUID_SEEDS.map((seed) => this.api.hap.uuid.generate(seed + deviceSerial));
+    const legacyAccessoryUuidSet = new Set(legacyAccessoryUuids);
     const legacyAccessories = this.accessories.filter((accessory) =>
-      legacyAccessoryUuids.includes(accessory.UUID),
+      legacyAccessoryUuidSet.has(accessory.UUID),
     );
 
     if (legacyAccessories.length === 0) {
@@ -161,11 +162,10 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     this.log.info(`Removing ${legacyAccessories.length} legacy metric accessory cache entries for: ${deviceSerial}`);
     this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, legacyAccessories);
 
-    legacyAccessories.forEach((legacyAccessory) => {
-      const accessoryIndex = this.accessories.findIndex((accessory) => accessory.UUID === legacyAccessory.UUID);
-      if (accessoryIndex >= 0) {
+    for (let accessoryIndex = this.accessories.length - 1; accessoryIndex >= 0; accessoryIndex--) {
+      if (legacyAccessoryUuidSet.has(this.accessories[accessoryIndex].UUID)) {
         this.accessories.splice(accessoryIndex, 1);
       }
-    });
+    }
   }
 }

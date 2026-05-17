@@ -212,7 +212,7 @@ export class PoolAccessory {
 
       const isMeasurementDataArray = Array.isArray(lastMeasurement?.data);
       if (!isMeasurementDataArray) {
-        this.platform.log.warn(`Missing measurement data array for ${this.accessory.context.device.blue_device_serial}`);
+        this.platform.log.warn(`Missing measurement data array for ${this.accessory.context.device.blue_device_serial}; continuing with previous values`);
       }
       const measurementData: MetricEntry[] = isMeasurementDataArray ? lastMeasurement.data : [];
       this.currentTemperature = this.getMetricValue(measurementData, 'temperature', this.currentTemperature);
@@ -244,7 +244,7 @@ export class PoolAccessory {
       const guidance = JSON.parse(guidanceString);
       const isGuidanceDataArray = Array.isArray(guidance?.data);
       if (!isGuidanceDataArray) {
-        this.platform.log.warn(`Missing guidance data array for ${this.accessory.context.device.blue_device_serial}`);
+        this.platform.log.warn(`Missing guidance data array for ${this.accessory.context.device.blue_device_serial}; continuing with previous values`);
       }
       const guidanceData: MetricEntry[] = isGuidanceDataArray ? guidance.data : [];
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
