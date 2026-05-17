@@ -22,7 +22,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public blueRiotAPI: BlueriiotAPI;
   public fakeGatoHistoryService: {
     new (type: string, accessory: PlatformAccessory, options: { storage: string; log?: { debug: (...args: unknown[]) => void } }): {
-      addEntry: (entry: { time: number; temp: number }) => void
+      addEntry: (entry: { time: number; temp: number; humidity?: number; pressure?: number }) => void
     }
   };
 
