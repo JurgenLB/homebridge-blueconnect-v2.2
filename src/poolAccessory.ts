@@ -210,11 +210,11 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
-      const hasMeasurementData = Array.isArray(lastMeasurement?.data);
-      if (!hasMeasurementData) {
+      const isMeasurementDataArray = Array.isArray(lastMeasurement?.data);
+      if (!isMeasurementDataArray) {
         this.platform.log.warn(`Missing measurement data array for ${this.accessory.context.device.blue_device_serial}`);
       }
-      const measurementData: MetricEntry[] = hasMeasurementData ? lastMeasurement.data : [];
+      const measurementData: MetricEntry[] = isMeasurementDataArray ? lastMeasurement.data : [];
       this.currentTemperature = this.getMetricValue(measurementData, 'temperature', this.currentTemperature);
       this.currentORP = this.getMetricValue(measurementData, 'orp', this.currentORP);
       this.currentPH = this.getMetricValue(measurementData, 'ph', this.currentPH);
@@ -242,11 +242,11 @@ export class PoolAccessory {
       this.platform.log.debug('Guidance: ' + guidanceString);
 
       const guidance = JSON.parse(guidanceString);
-      const hasGuidanceData = Array.isArray(guidance?.data);
-      if (!hasGuidanceData) {
+      const isGuidanceDataArray = Array.isArray(guidance?.data);
+      if (!isGuidanceDataArray) {
         this.platform.log.warn(`Missing guidance data array for ${this.accessory.context.device.blue_device_serial}`);
       }
-      const guidanceData: MetricEntry[] = hasGuidanceData ? guidance.data : [];
+      const guidanceData: MetricEntry[] = isGuidanceDataArray ? guidance.data : [];
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
       this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
       metricBindings.conductivityCharacteristic.updateValue(this.currentConductivity);
