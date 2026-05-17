@@ -6,6 +6,10 @@ import { attachCustomConductivityCharacteristic } from './characteristics/Conduc
 import { LEGACY_METRIC_UUID_SEEDS } from './settings.js';
 
 const GUIDANCE_LANGUAGE = 'en';
+const PH_DISPLAY_SCALE = 10;
+const PH_DISPLAY_MIN = 0;
+const PH_DISPLAY_MAX = 100;
+const ORP_LIGHT_LEVEL_MIN = 0.0001;
 type MetricEntry = { name?: string; value?: number | string | null };
 type MetricBindings = {
   temperatureService: Service;
@@ -115,7 +119,7 @@ export class PoolAccessory {
       .onGet(this.handleCurrentConductivityCarbonDioxideGet.bind(this));
 
     this.getPoolData().catch((error) => {
-      this.platform.log.error('Error getting current pool data: ' + this.formatError(error));
+      this.platform.log.error('Error getting initial pool data: ' + this.formatError(error));
     });
 
     setInterval(() => {
@@ -165,6 +169,18 @@ export class PoolAccessory {
 
   private formatError(error: unknown): string {
     return error instanceof Error ? error.stack || error.message : String(error);
+  }
+
+  private getPHDisplayValue(): number {
+    return Math.min(Math.max(this.currentPH * PH_DISPLAY_SCALE, PH_DISPLAY_MIN), PH_DISPLAY_MAX);
+  }
+
+  private getORPDisplayValue(): number {
+    return Math.max(this.currentORP, ORP_LIGHT_LEVEL_MIN);
+  }
+
+  private getConductivityDisplayValue(): number {
+    return Math.max(this.currentConductivity, 0);
   }
 
   /**
@@ -247,7 +263,7 @@ export class PoolAccessory {
 
   async handleCurrentPHHumidityGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return Math.min(Math.max(this.currentPH * 10, 0), 100);
+      return this.getPHDisplayValue();
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -266,7 +282,7 @@ export class PoolAccessory {
 
   async handleCurrentORPLightLevelGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return Math.max(this.currentORP, 0.0001);
+      return this.getORPDisplayValue();
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -285,7 +301,7 @@ export class PoolAccessory {
 
   async handleCurrentConductivityCarbonDioxideGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return Math.max(this.currentConductivity, 0);
+      return this.getConductivityDisplayValue();
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -327,7 +343,7 @@ export class PoolAccessory {
         time: Math.round(new Date().valueOf() / 1000),
         temp: this.currentTemperature,
         pressure: this.currentORP,
-        humidity: this.currentPH * 10,
+        humidity: this.currentPH * PH_DISPLAY_SCALE,
       });
 
       this.platform.log.debug('Current temperature: ' + this.currentTemperature);
@@ -337,8 +353,8 @@ export class PoolAccessory {
       metricBindings.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
       metricBindings.phCharacteristic.updateValue(this.currentPH);
       metricBindings.orpCharacteristic.updateValue(this.currentORP);
-      metricBindings.phDisplayCharacteristic.updateValue(Math.min(Math.max(this.currentPH * 10, 0), 100));
-      metricBindings.orpDisplayCharacteristic.updateValue(Math.max(this.currentORP, 0.0001));
+      metricBindings.phDisplayCharacteristic.updateValue(this.getPHDisplayValue());
+      metricBindings.orpDisplayCharacteristic.updateValue(this.getORPDisplayValue());
 
       const guidanceString = await this.platform.blueRiotAPI.getGuidance(
         this.accessory.context.device.swimming_pool_id,
@@ -356,7 +372,7 @@ export class PoolAccessory {
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
       this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
       metricBindings.conductivityCharacteristic.updateValue(this.currentConductivity);
-      metricBindings.conductivityDisplayCharacteristic.updateValue(Math.max(this.currentConductivity, 0));
+      metricBindings.conductivityDisplayCharacteristic.updateValue(this.getConductivityDisplayValue());
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + this.formatError(error));
     }

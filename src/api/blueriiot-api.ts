@@ -1,6 +1,7 @@
 import { BlueToken, BlueCredentials } from './BlueToken.js';
 import apiGatewayClientFactoryModule from 'aws-api-gateway-client';
 
+// This package is CommonJS; depending on runtime interop we may receive either the module itself or { default: module }.
 const apiClientFactory = apiGatewayClientFactoryModule.default ?? apiGatewayClientFactoryModule;
 const AWS_REGION = 'eu-west-1';
 
