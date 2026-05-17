@@ -1,7 +1,7 @@
 import { BlueToken, BlueCredentials } from './BlueToken.js';
+import apiGatewayClientFactoryModule from 'aws-api-gateway-client';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const apiClientFactory = require('aws-api-gateway-client').default;
+const apiClientFactory = apiGatewayClientFactoryModule.default ?? apiGatewayClientFactoryModule;
 const AWS_REGION = 'eu-west-1';
 
 const BASE_HEADERS = {
