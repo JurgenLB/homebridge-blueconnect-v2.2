@@ -51,6 +51,7 @@ export class PoolAccessory {
       .onGet(this.handleCurrentTemperatureGet.bind(this));
 
     this.removeLegacyMetricServices();
+    this.removeLegacyAirQualityCharacteristics(temperatureService);
     this.phCharacteristic = attachCustomPHCharacteristic(
       temperatureService,
       this.platform.api,
@@ -97,6 +98,23 @@ export class PoolAccessory {
     }
 
     servicesToRemove.forEach((service) => this.accessory.removeService(service));
+  }
+
+  private removeLegacyAirQualityCharacteristics(temperatureService: Service) {
+    const airQualityCharacteristics = temperatureService.characteristics.filter((characteristic) =>
+      characteristic.displayName === 'Air Quality'
+      || characteristic.UUID === this.platform.Characteristic.AirQuality.UUID,
+    );
+
+    if (airQualityCharacteristics.length > 0) {
+      this.platform.log.info(
+        `Removing ${airQualityCharacteristics.length} legacy Air Quality characteristics for: ${this.accessory.context.device.blue_device_serial}`,
+      );
+    }
+
+    airQualityCharacteristics.forEach((characteristic) => {
+      temperatureService.removeCharacteristic(characteristic);
+    });
   }
 
   private formatError(error: unknown): string {
