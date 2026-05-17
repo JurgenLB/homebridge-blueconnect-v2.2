@@ -35,7 +35,9 @@ export class PoolAccessory {
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
 
     const temperatureService = this.accessory.getService(
-      this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
+      this.platform.Service.TemperatureSensor) || this.accessory.addService(
+      this.platform.Service.TemperatureSensor,
+      accessory.context.device.blue_device_serial,
     );
     this.temperatureService = temperatureService;
     temperatureService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
@@ -105,7 +107,7 @@ export class PoolAccessory {
 
     const parsedValue = Number(rawValue);
 
-    if (!Number.isFinite(parsedValue)) {
+    if (Number.isNaN(parsedValue) || !Number.isFinite(parsedValue)) {
       this.platform.log.warn(`Invalid '${name}' value '${rawValue}', keeping previous value for ${this.accessory.context.device.blue_device_serial}`);
       return fallback;
     }
@@ -158,11 +160,6 @@ export class PoolAccessory {
   }
 
   async getPoolData() {
-    if (!this.temperatureService || !this.phCharacteristic || !this.orpCharacteristic || !this.conductivityCharacteristic) {
-      this.platform.log.warn(`Metric services are not initialized for ${this.accessory.context.device.blue_device_serial}`);
-      return;
-    }
-
     this.platform.log.debug(
       'Getting current temperature for ' +
         this.accessory.context.device.blue_device_serial +
@@ -200,9 +197,9 @@ export class PoolAccessory {
       this.platform.log.debug('Current ORP: ' + this.currentORP);
       this.platform.log.debug('Current pH: ' + this.currentPH);
 
-      this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
-      this.phCharacteristic.updateValue(this.currentPH);
-      this.orpCharacteristic.updateValue(this.currentORP);
+      this.temperatureService!.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
+      this.phCharacteristic!.updateValue(this.currentPH);
+      this.orpCharacteristic!.updateValue(this.currentORP);
 
       const guidanceString = await this.platform.blueRiotAPI.getGuidance(
         this.accessory.context.device.swimming_pool_id,
@@ -219,7 +216,7 @@ export class PoolAccessory {
       const guidanceData: MetricEntry[] = hasGuidanceData ? guidance.data : [];
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
       this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
-      this.conductivityCharacteristic.updateValue(this.currentConductivity);
+      this.conductivityCharacteristic!.updateValue(this.currentConductivity);
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + this.formatError(error));
     }
