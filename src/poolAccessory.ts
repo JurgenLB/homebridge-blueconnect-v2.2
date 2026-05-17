@@ -31,7 +31,10 @@ export class PoolAccessory {
         private readonly accessory: PlatformAccessory & { log?: Logging },
   ) {
     this.accessory.log = this.platform.log;
-    this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
+    this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, {
+      storage: 'fs',
+      log: { debug: () => undefined },
+    });
 
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!

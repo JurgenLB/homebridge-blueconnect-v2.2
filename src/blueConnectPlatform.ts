@@ -19,7 +19,9 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Characteristic: typeof Characteristic;
   public blueRiotAPI: BlueriiotAPI;
   public fakeGatoHistoryService: {
-    new (type: string, accessory: PlatformAccessory, options: { storage: string }): { addEntry: (entry: { time: number; temp: number }) => void }
+    new (type: string, accessory: PlatformAccessory, options: { storage: string; log?: { debug: (...args: unknown[]) => void } }): {
+      addEntry: (entry: { time: number; temp: number }) => void
+    }
   };
 
   // this is used to track restored cached accessories

@@ -17,7 +17,10 @@ export class WeatherAccessory {
   ) {
 
     this.accessory.log = this.platform.log;
-    this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
+    this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, {
+      storage: 'fs',
+      log: { debug: () => undefined },
+    });
 
     this.getWeatherTemperature().then(() => {
             // set accessory information
