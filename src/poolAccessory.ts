@@ -9,6 +9,7 @@ const GUIDANCE_LANGUAGE = 'en';
 const PH_DISPLAY_SCALE = 10;
 const PH_DISPLAY_MIN = 0;
 const PH_DISPLAY_MAX = 100;
+// HomeKit LightSensor requires values > 0.
 const ORP_LIGHT_LEVEL_MIN = 0.0001;
 type MetricEntry = { name?: string; value?: number | string | null };
 type MetricBindings = {
@@ -330,11 +331,11 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
-      const isMeasurementDataArray = Array.isArray(lastMeasurement?.data);
-      if (!isMeasurementDataArray) {
+      const hasMeasurementData = Array.isArray(lastMeasurement?.data);
+      if (!hasMeasurementData) {
         this.platform.log.warn(`Missing measurement data array for ${this.accessory.context.device.blue_device_serial}; continuing with previous values`);
       }
-      const measurementData: MetricEntry[] = isMeasurementDataArray ? lastMeasurement.data : [];
+      const measurementData: MetricEntry[] = hasMeasurementData ? lastMeasurement.data : [];
       this.currentTemperature = this.getMetricValue(measurementData, 'temperature', this.currentTemperature);
       this.currentORP = this.getMetricValue(measurementData, 'orp', this.currentORP);
       this.currentPH = this.getMetricValue(measurementData, 'ph', this.currentPH);
@@ -364,11 +365,11 @@ export class PoolAccessory {
       this.platform.log.debug('Guidance: ' + guidanceString);
 
       const guidance = JSON.parse(guidanceString);
-      const isGuidanceDataArray = Array.isArray(guidance?.data);
-      if (!isGuidanceDataArray) {
+      const hasGuidanceData = Array.isArray(guidance?.data);
+      if (!hasGuidanceData) {
         this.platform.log.warn(`Missing guidance data array for ${this.accessory.context.device.blue_device_serial}; continuing with previous values`);
       }
-      const guidanceData: MetricEntry[] = isGuidanceDataArray ? guidance.data : [];
+      const guidanceData: MetricEntry[] = hasGuidanceData ? guidance.data : [];
       this.currentConductivity = this.getMetricValue(guidanceData, 'conductivity', this.currentConductivity);
       this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
       metricBindings.conductivityCharacteristic.updateValue(this.currentConductivity);
