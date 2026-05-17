@@ -29,7 +29,6 @@
     "url": "https://github.com/taurgis/homebridge-blueconnect-v2/issues"
   },
   "homepage": "https://github.com/taurgis/homebridge-blueconnect-v2#readme",
-  "type": "module",
   "main": "dist/index.js",
   "author": "Taurgis",
   "devDependencies": {
