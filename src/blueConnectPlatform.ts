@@ -160,7 +160,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
       return;
     }
 
-    this.log.info(`Removing ${legacyAccessories.length} legacy metric accessory cache entries for:`, deviceSerial);
+    this.log.info(`Removing ${legacyAccessories.length} legacy metric accessory cache entries for: ${deviceSerial}`);
     this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, legacyAccessories);
 
     legacyAccessories.forEach((legacyAccessory) => {

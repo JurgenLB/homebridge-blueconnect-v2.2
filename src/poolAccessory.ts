@@ -94,7 +94,7 @@ export class PoolAccessory {
   }
 
   private formatError(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
+    return error instanceof Error ? error.stack || error.message : String(error);
   }
 
   private getMetricValue(data: MetricEntry[], name: string, fallback: number): number {
