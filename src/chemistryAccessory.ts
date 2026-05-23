@@ -143,14 +143,18 @@ export class ChemistryAccessory {
         measurementDefinition.name,
         fallbackByMetric[this.metric],
       );
-
-      if (this.metric === 'ph') {
-        this.currentPH = value;
-      } else if (this.metric === 'orp') {
-        this.currentORP = value;
-      } else {
-        this.currentConductivity = value;
-      }
+      const assignByMetric: Record<ChemistryMetric, (nextValue: number) => void> = {
+        ph: (nextValue) => {
+          this.currentPH = nextValue;
+        },
+        orp: (nextValue) => {
+          this.currentORP = nextValue;
+        },
+        conductivity: (nextValue) => {
+          this.currentConductivity = nextValue;
+        },
+      };
+      assignByMetric[this.metric](value);
 
       this.updateServiceName();
 
@@ -166,17 +170,12 @@ export class ChemistryAccessory {
     }
 
     const deviceSerial = this.accessory.context.device.blue_device_serial;
-    const metricNames: Record<ChemistryMetric, string> = {
-      ph: 'Pool pH',
-      orp: 'Pool ORP',
-      conductivity: 'Pool Conductivity',
-    };
     const formattedValueByMetric: Record<ChemistryMetric, string> = {
       ph: `${this.currentPH.toFixed(1)} pH`,
       orp: `${Math.round(this.currentORP)} mV`,
       conductivity: `${Math.round(this.currentConductivity)} µS`,
     };
-    const serviceName = `${metricNames[this.metric]} ${formattedValueByMetric[this.metric]} ${deviceSerial}`;
+    const serviceName = `${CHEMISTRY_SERVICE_DEFINITIONS[this.metric].name} ${formattedValueByMetric[this.metric]} ${deviceSerial}`;
 
     this.service.setCharacteristic(this.platform.Characteristic.Name, serviceName);
     this.accessory.displayName = serviceName;
