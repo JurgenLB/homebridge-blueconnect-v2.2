@@ -18,23 +18,25 @@ export class ChemistryAccessory {
     this.accessory.log = this.platform.log;
 
     this.getPoolData().then(() => {
+      const deviceModel = this.accessory.context.device.blue_device?.hw_type ?? 'BlueRiiot';
+      const firmwareRevision = this.accessory.context.device.blue_device?.fw_version_psoc ?? 'Unknown';
+      const deviceSerial = this.accessory.context.device.blue_device_serial;
+
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
-        .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
-        .setCharacteristic(this.platform.Characteristic.SerialNumber, `${this.accessory.context.device.blue_device_serial}-chemistry`)
-        .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
+        .setCharacteristic(this.platform.Characteristic.Model, deviceModel)
+        .setCharacteristic(this.platform.Characteristic.SerialNumber, `${deviceSerial}-chemistry`)
+        .setCharacteristic(this.platform.Characteristic.FirmwareRevision, firmwareRevision);
 
       this.service = this.accessory.getService(
-        this.platform.Service.LightSensor) || this.accessory.addService(this.platform.Service.LightSensor,
+        this.platform.Service.LightSensor) || this.accessory.addService(this.platform.Service.LightSensor, 'Pool Chemistry',
       );
 
-      this.service.setCharacteristic(this.platform.Characteristic.Name, `${this.accessory.context.device.blue_device_serial} Chemistry`);
+      this.service.setCharacteristic(this.platform.Characteristic.Name, `${deviceSerial} Chemistry`);
       this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
         .onGet(this.handleCurrentORPGet.bind(this));
-      this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-        .onGet(this.handleCurrentPHGet.bind(this));
       attachCustomPHCharacteristic(this.service, this.platform.api)
-        .onGet(this.handleCurrentChemistryPHGet.bind(this));
+        .onGet(this.handleCurrentPHGet.bind(this));
       attachCustomORPCharacteristic(this.service, this.platform.api)
         .onGet(this.handleCurrentORPGet.bind(this));
       attachCustomConductivityCharacteristic(this.service, this.platform.api)
@@ -49,14 +51,6 @@ export class ChemistryAccessory {
   }
 
   async handleCurrentPHGet(): Promise<CharacteristicValue> {
-    if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return this.currentPH * 10;
-    } else {
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-    }
-  }
-
-  async handleCurrentChemistryPHGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentPH;
     } else {

@@ -7,6 +7,15 @@ import { BlueriiotAPI } from './api/blueriiot-api.js';
 import { ChemistryAccessory } from './chemistryAccessory';
 import { WeatherAccessory } from './weatherAccessory';
 
+type BlueDeviceContext = {
+  blue_device_serial: string;
+  swimming_pool_id: string;
+  blue_device: {
+    hw_type: string;
+    fw_version_psoc: string;
+  };
+};
+
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
@@ -79,7 +88,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
             this.log.debug('BlueConnect: BlueDevices: ' + JSON.stringify(blueDevices, null, 2));
             this.log.info('BlueConnect: Found ' + blueDevices.length + ' devices');
 
-            blueDevices.forEach((blueDevice : { blue_device_serial : string }) => {
+            blueDevices.forEach((blueDevice : BlueDeviceContext) => {
               this.processBlueDevice(blueDevice);
               this.processChemistryAccessory(blueDevice);
             });
@@ -127,7 +136,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private processBlueDevice(blueDevice: { blue_device_serial: string }) {
+  private processBlueDevice(blueDevice: BlueDeviceContext) {
     const uuid = this.api.hap.uuid.generate(blueDevice.blue_device_serial);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
@@ -148,7 +157,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private processChemistryAccessory(blueDevice: { blue_device_serial: string }) {
+  private processChemistryAccessory(blueDevice: BlueDeviceContext) {
     const uuid = this.api.hap.uuid.generate(`${blueDevice.blue_device_serial}-chemistry`);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
