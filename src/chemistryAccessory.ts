@@ -23,6 +23,12 @@ const CHEMISTRY_SERVICE_DEFINITIONS: Record<ChemistryMetric, { name: string; uui
   },
 };
 
+const CHEMISTRY_MEASUREMENT_DEFINITIONS: Record<ChemistryMetric, { name: string; logLabel: string }> = {
+  ph: { name: 'ph', logLabel: 'pH' },
+  orp: { name: 'orp', logLabel: 'ORP' },
+  conductivity: { name: 'conductivity', logLabel: 'conductivity' },
+};
+
 export class ChemistryAccessory {
   private service: Service | null = null;
 
@@ -54,16 +60,13 @@ export class ChemistryAccessory {
         this.accessory.addService(new this.platform.api.hap.Service(serviceDefinition.name, serviceDefinition.uuid));
       this.service.setCharacteristic(this.platform.Characteristic.Name, serviceName);
 
-      if (this.metric === 'ph') {
-        attachCustomPHCharacteristic(this.service, this.platform.api)
-          .onGet(this.handleCurrentPHGet.bind(this));
-      } else if (this.metric === 'orp') {
-        attachCustomORPCharacteristic(this.service, this.platform.api)
-          .onGet(this.handleCurrentORPGet.bind(this));
-      } else {
-        attachCustomConductivityCharacteristic(this.service, this.platform.api)
-          .onGet(this.handleCurrentConductivityGet.bind(this));
-      }
+      const attachByMetric: Record<ChemistryMetric, () => void> = {
+        ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentPHGet.bind(this)),
+        orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentORPGet.bind(this)),
+        conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api)
+          .onGet(this.handleCurrentConductivityGet.bind(this)),
+      };
+      attachByMetric[this.metric]();
 
       setInterval(() => {
         this.getPoolData().catch((error) => {
@@ -122,17 +125,28 @@ export class ChemistryAccessory {
       }
 
       const measurements: Array<{ name: string; value: string | number }> = lastMeasurement.data;
+      const measurementDefinition = CHEMISTRY_MEASUREMENT_DEFINITIONS[this.metric];
+      const fallbackByMetric: Record<ChemistryMetric, number> = {
+        ph: this.currentPH,
+        orp: this.currentORP,
+        conductivity: this.currentConductivity,
+      };
+      const value = getMeasurementValue(
+        this.platform.log,
+        measurements,
+        measurementDefinition.name,
+        fallbackByMetric[this.metric],
+      );
 
       if (this.metric === 'ph') {
-        this.currentPH = getMeasurementValue(this.platform.log, measurements, 'ph', this.currentPH);
-        this.platform.log.debug('Chemistry pH: ' + this.currentPH);
+        this.currentPH = value;
       } else if (this.metric === 'orp') {
-        this.currentORP = getMeasurementValue(this.platform.log, measurements, 'orp', this.currentORP);
-        this.platform.log.debug('Chemistry ORP: ' + this.currentORP);
+        this.currentORP = value;
       } else {
-        this.currentConductivity = getMeasurementValue(this.platform.log, measurements, 'conductivity', this.currentConductivity);
-        this.platform.log.debug('Chemistry conductivity: ' + this.currentConductivity);
+        this.currentConductivity = value;
       }
+
+      this.platform.log.debug(`Chemistry ${measurementDefinition.logLabel}: ${value}`);
     } catch (error) {
       this.platform.log.error('Error getting chemistry measurement: ' + error);
     }
