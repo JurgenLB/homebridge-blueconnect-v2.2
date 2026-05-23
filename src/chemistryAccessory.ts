@@ -100,8 +100,7 @@ export class ChemistryAccessory {
       const attachByMetric: Record<ChemistryMetric, () => void> = {
         ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
         orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
-        conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api)
-          .onGet(this.handleCurrentMetricGet.bind(this)),
+        conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
       };
       attachByMetric[this.metric]();
 
