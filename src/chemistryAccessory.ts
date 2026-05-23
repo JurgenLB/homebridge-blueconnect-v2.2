@@ -98,10 +98,10 @@ export class ChemistryAccessory {
         .onGet(this.handleCurrentDisplayValueGet.bind(this));
 
       const attachByMetric: Record<ChemistryMetric, () => void> = {
-        ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentPHGet.bind(this)),
-        orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentORPGet.bind(this)),
+        ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
+        orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
         conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api)
-          .onGet(this.handleCurrentConductivityGet.bind(this)),
+          .onGet(this.handleCurrentMetricGet.bind(this)),
       };
       attachByMetric[this.metric]();
 
@@ -115,42 +115,16 @@ export class ChemistryAccessory {
     });
   }
 
-  async handleCurrentPHGet(): Promise<CharacteristicValue> {
+  async handleCurrentMetricGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return this.currentPH;
-    } else {
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-    }
-  }
-
-  async handleCurrentORPGet(): Promise<CharacteristicValue> {
-    if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return this.currentORP;
-    } else {
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-    }
-  }
-
-  async handleCurrentConductivityGet(): Promise<CharacteristicValue> {
-    if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return this.currentConductivity;
+      return this.getCurrentMetricValue();
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
   }
 
   async handleCurrentDisplayValueGet(): Promise<CharacteristicValue> {
-    const valueByMetric: Record<ChemistryMetric, number> = {
-      conductivity: this.currentConductivity,
-      orp: this.currentORP,
-      ph: this.currentPH,
-    };
-
-    if (this.platform.blueRiotAPI.isAuthenticated()) {
-      return valueByMetric[this.metric];
-    } else {
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-    }
+    return this.handleCurrentMetricGet();
   }
 
   async getPoolData() {
@@ -188,22 +162,32 @@ export class ChemistryAccessory {
         measurementDefinition.name,
         fallbackByMetric[this.metric],
       );
-      const assignByMetric: Record<ChemistryMetric, (nextValue: number) => void> = {
-        ph: (nextValue) => {
-          this.currentPH = nextValue;
-        },
-        orp: (nextValue) => {
-          this.currentORP = nextValue;
-        },
-        conductivity: (nextValue) => {
-          this.currentConductivity = nextValue;
-        },
-      };
-      assignByMetric[this.metric](value);
+      switch (this.metric) {
+      case 'ph':
+        this.currentPH = value;
+        break;
+      case 'orp':
+        this.currentORP = value;
+        break;
+      case 'conductivity':
+        this.currentConductivity = value;
+        break;
+      }
 
       this.platform.log.debug(`Chemistry ${measurementDefinition.logLabel}: ${value}`);
     } catch (error) {
       this.platform.log.error('Error getting chemistry measurement: ' + error);
+    }
+  }
+
+  private getCurrentMetricValue(): number {
+    switch (this.metric) {
+    case 'ph':
+      return this.currentPH;
+    case 'orp':
+      return this.currentORP;
+    case 'conductivity':
+      return this.currentConductivity;
     }
   }
 }
