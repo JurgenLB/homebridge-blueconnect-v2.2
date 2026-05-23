@@ -84,11 +84,16 @@ export class ChemistryAccessory {
         this.accessory.removeService(legacyLightSensor);
       }
 
-      this.service = this.accessory.getService(this.platform.Service.HumiditySensor) ||
-        this.accessory.addService(this.platform.Service.HumiditySensor, serviceDefinition.name);
+      const legacyHumiditySensor = this.accessory.getService(this.platform.Service.HumiditySensor);
+      if (legacyHumiditySensor) {
+        this.accessory.removeService(legacyHumiditySensor);
+      }
+
+      this.service = this.accessory.getService(this.platform.Service.TemperatureSensor) ||
+        this.accessory.addService(this.platform.Service.TemperatureSensor, serviceDefinition.name);
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, `${serviceDefinition.name} ${deviceSerial}`);
-      this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+      this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
         .setProps({
           maxValue: serviceDefinition.display.maxValue,
           minStep: serviceDefinition.display.minStep,
