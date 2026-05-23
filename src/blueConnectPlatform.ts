@@ -4,7 +4,7 @@ import { PoolAccessory } from './poolAccessory.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 
 import { BlueriiotAPI } from './api/blueriiot-api.js';
-import { ChemistryAccessory } from './chemistryAccessory';
+import { CHEMISTRY_METRICS, ChemistryAccessory, ChemistryMetric } from './chemistryAccessory';
 import { WeatherAccessory } from './weatherAccessory';
 
 type BlueDeviceContext = {
@@ -90,7 +90,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
 
             blueDevices.forEach((blueDevice : BlueDeviceContext) => {
               this.processBlueDevice(blueDevice);
-              this.processChemistryAccessory(blueDevice);
+              this.processChemistryAccessories(blueDevice);
             });
 
             this.processWeatherAccessory(poolId);
@@ -157,22 +157,29 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private processChemistryAccessory(blueDevice: BlueDeviceContext) {
-    const uuid = this.api.hap.uuid.generate(`${blueDevice.blue_device_serial}-chemistry`);
+  private processChemistryAccessories(blueDevice: BlueDeviceContext) {
+    CHEMISTRY_METRICS.forEach((metric) => {
+      this.processChemistryAccessory(blueDevice, metric);
+    });
+  }
+
+  private processChemistryAccessory(blueDevice: BlueDeviceContext, metric: ChemistryMetric) {
+    const uuid = this.api.hap.uuid.generate(`${blueDevice.blue_device_serial}-chemistry-${metric}`);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+    const accessoryName = `${blueDevice.blue_device_serial}-chemistry-${metric}`;
 
     if (existingAccessory) {
       this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
-      new ChemistryAccessory(this, existingAccessory);
+      new ChemistryAccessory(this, existingAccessory, metric);
     } else {
-      this.log.info('Adding new accessory:', `${blueDevice.blue_device_serial}-chemistry`);
+      this.log.info('Adding new accessory:', accessoryName);
 
-      const accessory = new this.api.platformAccessory(`${blueDevice.blue_device_serial}-chemistry`, uuid);
+      const accessory = new this.api.platformAccessory(accessoryName, uuid);
 
       accessory.context.device = blueDevice;
 
-      new ChemistryAccessory(this, accessory);
+      new ChemistryAccessory(this, accessory, metric);
 
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }
