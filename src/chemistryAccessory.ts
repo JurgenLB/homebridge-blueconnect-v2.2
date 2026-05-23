@@ -29,6 +29,8 @@ const CHEMISTRY_MEASUREMENT_DEFINITIONS: Record<ChemistryMetric, { name: string;
   conductivity: { name: 'conductivity', logLabel: 'conductivity' },
 };
 
+const MIN_AMBIENT_LIGHT_LEVEL = 0.0001;
+
 export class ChemistryAccessory {
   private service: Service | null = null;
 
@@ -56,17 +58,45 @@ export class ChemistryAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, `${deviceSerial}-chemistry-${this.metric}`)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, firmwareRevision);
 
-      this.service = this.accessory.getService(serviceDefinition.name) ||
-        this.accessory.addService(new this.platform.api.hap.Service(serviceDefinition.name, serviceDefinition.uuid));
-      this.service.setCharacteristic(this.platform.Characteristic.Name, serviceName);
+      const legacyCustomService = this.accessory.services.find(service => service.UUID === serviceDefinition.uuid);
+      if (legacyCustomService) {
+        this.accessory.removeService(legacyCustomService);
+      }
 
-      const attachByMetric: Record<ChemistryMetric, () => void> = {
-        ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentPHGet.bind(this)),
-        orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentORPGet.bind(this)),
-        conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api)
-          .onGet(this.handleCurrentConductivityGet.bind(this)),
+      const setupByMetric: Record<ChemistryMetric, () => Service> = {
+        ph: () => {
+          const service = this.accessory.getService(this.platform.Service.HumiditySensor) ||
+            this.accessory.addService(this.platform.Service.HumiditySensor, serviceDefinition.name);
+
+          service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+            .onGet(this.handleCurrentPHDisplayGet.bind(this));
+          attachCustomPHCharacteristic(service, this.platform.api).onGet(this.handleCurrentPHGet.bind(this));
+
+          return service;
+        },
+        orp: () => {
+          const service = this.accessory.getService(this.platform.Service.LightSensor) ||
+            this.accessory.addService(this.platform.Service.LightSensor, serviceDefinition.name);
+
+          service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+            .onGet(this.handleCurrentORPDisplayGet.bind(this));
+          attachCustomORPCharacteristic(service, this.platform.api).onGet(this.handleCurrentORPGet.bind(this));
+
+          return service;
+        },
+        conductivity: () => {
+          const service = this.accessory.getService(this.platform.Service.LightSensor) ||
+            this.accessory.addService(this.platform.Service.LightSensor, serviceDefinition.name);
+
+          service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+            .onGet(this.handleCurrentConductivityDisplayGet.bind(this));
+          attachCustomConductivityCharacteristic(service, this.platform.api).onGet(this.handleCurrentConductivityGet.bind(this));
+
+          return service;
+        },
       };
-      attachByMetric[this.metric]();
+      this.service = setupByMetric[this.metric]();
+      this.service.setCharacteristic(this.platform.Characteristic.Name, serviceName);
 
       setInterval(() => {
         this.getPoolData().catch((error) => {
@@ -86,6 +116,12 @@ export class ChemistryAccessory {
     }
   }
 
+  async handleCurrentPHDisplayGet(): Promise<CharacteristicValue> {
+    const phAsHumidity = this.currentPH * 10;
+
+    return Math.max(0, Math.min(100, phAsHumidity));
+  }
+
   async handleCurrentORPGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentORP;
@@ -94,12 +130,20 @@ export class ChemistryAccessory {
     }
   }
 
+  async handleCurrentORPDisplayGet(): Promise<CharacteristicValue> {
+    return Math.max(MIN_AMBIENT_LIGHT_LEVEL, this.currentORP);
+  }
+
   async handleCurrentConductivityGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentConductivity;
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
+  }
+
+  async handleCurrentConductivityDisplayGet(): Promise<CharacteristicValue> {
+    return Math.max(MIN_AMBIENT_LIGHT_LEVEL, this.currentConductivity);
   }
 
   async getPoolData() {
