@@ -110,7 +110,7 @@ export class PoolAccessory {
   }
 
   /**
-     * Handle requests to get the current value of the "Current conductivity" characteristic
+     * Handle requests to get the current value of the "Current Conductivity" characteristic
      */
   async handleCurrentConductivityGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
@@ -162,12 +162,13 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
+      if (!Array.isArray(lastMeasurement.data)) {
+        this.platform.log.warn('Last measurement payload is missing data array, keeping previous values');
+      }
+
       const measurements: Array<{ name: string; value: number }> = Array.isArray(lastMeasurement.data)
         ? lastMeasurement.data
-        : (() => {
-          this.platform.log.warn('Last measurement payload is missing data array, keeping previous values');
-          return [];
-        })();
+        : [];
 
       this.currentTemperature = this.getMeasurementValue(measurements, 'temperature', this.currentTemperature);
       this.currentORP = this.getMeasurementValue(measurements, 'orp', this.currentORP);
