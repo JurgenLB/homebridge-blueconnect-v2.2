@@ -8,18 +8,37 @@ import { getMeasurementValue } from './measurements';
 export const CHEMISTRY_METRICS = ['ph', 'orp', 'conductivity'] as const;
 export type ChemistryMetric = typeof CHEMISTRY_METRICS[number];
 
-const CHEMISTRY_SERVICE_DEFINITIONS: Record<ChemistryMetric, { name: string; uuid: string }> = {
+const CHEMISTRY_SERVICE_DEFINITIONS: Record<ChemistryMetric, {
+  display: { maxValue: number; minStep: number; unit: string };
+  legacyCustomServiceUuid: string;
+  name: string;
+}> = {
   ph: {
+    display: {
+      maxValue: 14,
+      minStep: 0.1,
+      unit: 'pH',
+    },
+    legacyCustomServiceUuid: '1D7BEBC7-BF34-4212-8462-0AAB920AB181',
     name: 'Pool pH',
-    uuid: '1D7BEBC7-BF34-4212-8462-0AAB920AB181',
   },
   orp: {
+    display: {
+      maxValue: 1100,
+      minStep: 1,
+      unit: 'mV',
+    },
+    legacyCustomServiceUuid: '0BE8BDB1-7A80-45B0-93B8-B2B70949DBD0',
     name: 'Pool ORP',
-    uuid: '0BE8BDB1-7A80-45B0-93B8-B2B70949DBD0',
   },
   conductivity: {
+    display: {
+      maxValue: 100000,
+      minStep: 0.1,
+      unit: 'µS',
+    },
+    legacyCustomServiceUuid: 'B65A5E83-99B8-44AB-9A4D-4FF2C2E8EAF1',
     name: 'Pool Conductivity',
-    uuid: 'B65A5E83-99B8-44AB-9A4D-4FF2C2E8EAF1',
   },
 };
 
@@ -55,15 +74,28 @@ export class ChemistryAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, `${deviceSerial}-chemistry-${this.metric}`)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, firmwareRevision);
 
-      for (const legacyServiceType of [this.platform.Service.HumiditySensor, this.platform.Service.LightSensor]) {
-        const legacyService = this.accessory.getService(legacyServiceType);
-        if (legacyService) {
-          this.accessory.removeService(legacyService);
-        }
+      const legacyCustomService = this.accessory.services.find(service => service.UUID === serviceDefinition.legacyCustomServiceUuid);
+      if (legacyCustomService) {
+        this.accessory.removeService(legacyCustomService);
       }
 
-      this.service = this.accessory.getService(serviceDefinition.name) ||
-        this.accessory.addService(new this.platform.api.hap.Service(serviceDefinition.name, serviceDefinition.uuid));
+      const legacyLightSensor = this.accessory.getService(this.platform.Service.LightSensor);
+      if (legacyLightSensor) {
+        this.accessory.removeService(legacyLightSensor);
+      }
+
+      this.service = this.accessory.getService(this.platform.Service.HumiditySensor) ||
+        this.accessory.addService(this.platform.Service.HumiditySensor, serviceDefinition.name);
+
+      this.service.setCharacteristic(this.platform.Characteristic.Name, `${serviceDefinition.name} ${deviceSerial}`);
+      this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+        .setProps({
+          maxValue: serviceDefinition.display.maxValue,
+          minStep: serviceDefinition.display.minStep,
+          minValue: 0,
+          unit: serviceDefinition.display.unit,
+        })
+        .onGet(this.handleCurrentDisplayValueGet.bind(this));
 
       const attachByMetric: Record<ChemistryMetric, () => void> = {
         ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentPHGet.bind(this)),
@@ -72,7 +104,6 @@ export class ChemistryAccessory {
           .onGet(this.handleCurrentConductivityGet.bind(this)),
       };
       attachByMetric[this.metric]();
-      this.updateServiceName();
 
       setInterval(() => {
         this.getPoolData().catch((error) => {
@@ -103,6 +134,20 @@ export class ChemistryAccessory {
   async handleCurrentConductivityGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentConductivity;
+    } else {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+  }
+
+  async handleCurrentDisplayValueGet(): Promise<CharacteristicValue> {
+    const valueByMetric: Record<ChemistryMetric, number> = {
+      conductivity: this.currentConductivity,
+      orp: this.currentORP,
+      ph: this.currentPH,
+    };
+
+    if (this.platform.blueRiotAPI.isAuthenticated()) {
+      return valueByMetric[this.metric];
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -156,28 +201,9 @@ export class ChemistryAccessory {
       };
       assignByMetric[this.metric](value);
 
-      this.updateServiceName();
-
       this.platform.log.debug(`Chemistry ${measurementDefinition.logLabel}: ${value}`);
     } catch (error) {
       this.platform.log.error('Error getting chemistry measurement: ' + error);
     }
-  }
-
-  private updateServiceName() {
-    if (!this.service) {
-      return;
-    }
-
-    const deviceSerial = this.accessory.context.device.blue_device_serial;
-    const formattedValueByMetric: Record<ChemistryMetric, string> = {
-      ph: `${this.currentPH.toFixed(1)} pH`,
-      orp: `${Math.round(this.currentORP)} mV`,
-      conductivity: `${Math.round(this.currentConductivity)} µS`,
-    };
-    const serviceName = `${CHEMISTRY_SERVICE_DEFINITIONS[this.metric].name} ${formattedValueByMetric[this.metric]} ${deviceSerial}`;
-
-    this.service.setCharacteristic(this.platform.Characteristic.Name, serviceName);
-    this.accessory.displayName = serviceName;
   }
 }
