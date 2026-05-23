@@ -9,35 +9,19 @@ export const CHEMISTRY_METRICS = ['ph', 'orp', 'conductivity'] as const;
 export type ChemistryMetric = typeof CHEMISTRY_METRICS[number];
 
 const CHEMISTRY_SERVICE_DEFINITIONS: Record<ChemistryMetric, {
-  display: { maxValue: number; minStep: number; unit: string };
-  legacyCustomServiceUuid: string;
+  customServiceUuid: string;
   name: string;
 }> = {
   ph: {
-    display: {
-      maxValue: 14,
-      minStep: 0.1,
-      unit: 'pH',
-    },
-    legacyCustomServiceUuid: '1D7BEBC7-BF34-4212-8462-0AAB920AB181',
+    customServiceUuid: '1D7BEBC7-BF34-4212-8462-0AAB920AB181',
     name: 'Pool pH',
   },
   orp: {
-    display: {
-      maxValue: 1100,
-      minStep: 1,
-      unit: 'mV',
-    },
-    legacyCustomServiceUuid: '0BE8BDB1-7A80-45B0-93B8-B2B70949DBD0',
+    customServiceUuid: '0BE8BDB1-7A80-45B0-93B8-B2B70949DBD0',
     name: 'Pool ORP',
   },
   conductivity: {
-    display: {
-      maxValue: 100000,
-      minStep: 0.1,
-      unit: 'µS',
-    },
-    legacyCustomServiceUuid: 'B65A5E83-99B8-44AB-9A4D-4FF2C2E8EAF1',
+    customServiceUuid: 'B65A5E83-99B8-44AB-9A4D-4FF2C2E8EAF1',
     name: 'Pool Conductivity',
   },
 };
@@ -74,11 +58,6 @@ export class ChemistryAccessory {
         .setCharacteristic(this.platform.Characteristic.SerialNumber, `${deviceSerial}-chemistry-${this.metric}`)
         .setCharacteristic(this.platform.Characteristic.FirmwareRevision, firmwareRevision);
 
-      const legacyCustomService = this.accessory.services.find(service => service.UUID === serviceDefinition.legacyCustomServiceUuid);
-      if (legacyCustomService) {
-        this.accessory.removeService(legacyCustomService);
-      }
-
       const legacyLightSensor = this.accessory.getService(this.platform.Service.LightSensor);
       if (legacyLightSensor) {
         this.accessory.removeService(legacyLightSensor);
@@ -89,25 +68,26 @@ export class ChemistryAccessory {
         this.accessory.removeService(legacyHumiditySensor);
       }
 
-      this.service = this.accessory.getService(this.platform.Service.TemperatureSensor) ||
-        this.accessory.addService(this.platform.Service.TemperatureSensor, serviceDefinition.name);
+      const legacyTemperatureSensor = this.accessory.getService(this.platform.Service.TemperatureSensor);
+      if (legacyTemperatureSensor) {
+        this.accessory.removeService(legacyTemperatureSensor);
+      }
+
+      const customService = this.accessory.services.find(service => service.UUID === serviceDefinition.customServiceUuid);
+      if (customService) {
+        this.service = customService;
+      } else {
+        this.service = new this.platform.api.hap.Service(serviceDefinition.name, serviceDefinition.customServiceUuid);
+        this.accessory.addService(this.service);
+      }
 
       this.service.setCharacteristic(this.platform.Characteristic.Name, `${serviceDefinition.name} ${deviceSerial}`);
-      this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-        .setProps({
-          maxValue: serviceDefinition.display.maxValue,
-          minStep: serviceDefinition.display.minStep,
-          minValue: 0,
-          unit: serviceDefinition.display.unit,
-        })
-        .onGet(this.handleCurrentDisplayValueGet.bind(this));
-
-      const attachByMetric: Record<ChemistryMetric, () => void> = {
-        ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
-        orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
-        conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api).onGet(this.handleCurrentMetricGet.bind(this)),
+      const attachByMetric = {
+        ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api),
+        orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api),
+        conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api),
       };
-      attachByMetric[this.metric]();
+      attachByMetric[this.metric]().onGet(this.handleCurrentMetricGet.bind(this));
 
       setInterval(() => {
         this.getPoolData().catch((error) => {
@@ -125,10 +105,6 @@ export class ChemistryAccessory {
     } else {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-  }
-
-  async handleCurrentDisplayValueGet(): Promise<CharacteristicValue> {
-    return this.handleCurrentMetricGet();
   }
 
   async getPoolData() {
