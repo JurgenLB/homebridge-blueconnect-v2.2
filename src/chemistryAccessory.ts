@@ -3,6 +3,7 @@ import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP';
 import { attachCustomPHCharacteristic } from './characteristics/PH';
 import { attachCustomConductivityCharacteristic } from './characteristics/conductivity';
+import { getMeasurementValue } from './measurements';
 
 export class ChemistryAccessory {
   private service: Service | null = null;
@@ -48,6 +49,8 @@ export class ChemistryAccessory {
           this.platform.log.error('Error getting current chemistry data: ' + error);
         });
       }, 60000 * (this.platform.config.refreshInterval || 30) );
+    }).catch((error) => {
+      this.platform.log.error('Error initializing chemistry accessory: ' + error);
     });
   }
 
@@ -75,30 +78,6 @@ export class ChemistryAccessory {
     }
   }
 
-  private getMeasurementValue(
-    measurements: Array<{ name: string; value: number }>,
-    measurementName: string,
-    fallbackValue: number,
-  ): number {
-    const measurementValue = measurements.find((element) => element.name === measurementName)?.value;
-
-    if (measurementValue == null) {
-      this.platform.log.warn(`Missing ${measurementName} measurement, keeping previous value: ${fallbackValue}`);
-
-      return fallbackValue;
-    }
-
-    const numericValue = Number(measurementValue);
-
-    if (Number.isFinite(numericValue)) {
-      return numericValue;
-    }
-
-    this.platform.log.warn(`Invalid ${measurementName} measurement value, keeping previous value: ${fallbackValue}`);
-
-    return fallbackValue;
-  }
-
   async getPoolData() {
     this.platform.log.debug(
       'Getting current chemistry data for ' +
@@ -123,9 +102,9 @@ export class ChemistryAccessory {
 
       const measurements: Array<{ name: string; value: number }> = lastMeasurement.data;
 
-      this.currentORP = this.getMeasurementValue(measurements, 'orp', this.currentORP);
-      this.currentPH = this.getMeasurementValue(measurements, 'ph', this.currentPH);
-      this.currentConductivity = this.getMeasurementValue(measurements, 'conductivity', this.currentConductivity);
+      this.currentORP = getMeasurementValue(this.platform.log, measurements, 'orp', this.currentORP);
+      this.currentPH = getMeasurementValue(this.platform.log, measurements, 'ph', this.currentPH);
+      this.currentConductivity = getMeasurementValue(this.platform.log, measurements, 'conductivity', this.currentConductivity);
 
       this.platform.log.debug('Chemistry ORP: ' + this.currentORP);
       this.platform.log.debug('Chemistry pH: ' + this.currentPH);
