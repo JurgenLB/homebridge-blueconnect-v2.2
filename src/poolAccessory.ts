@@ -9,7 +9,7 @@ export class PoolAccessory {
 
   private currentTemperature = 25;
   private currentORP = 750;
-  private currentPH = 0;
+  private currentPH = 7;
   private currentConductivity = 0;
 
   constructor(
@@ -106,7 +106,7 @@ export class PoolAccessory {
         return;
       }
 
-      const measurements: Array<{ name: string; value: number }> = lastMeasurement.data;
+      const measurements: Array<{ name: string; value: string | number }> = lastMeasurement.data;
 
       this.currentTemperature = getMeasurementValue(this.platform.log, measurements, 'temperature', this.currentTemperature);
       this.currentORP = getMeasurementValue(this.platform.log, measurements, 'orp', this.currentORP);
