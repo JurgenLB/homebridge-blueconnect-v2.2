@@ -1,27 +1,38 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-import { attachCustomORPCharacteristic } from './characteristics/ORP';
-import { attachCustomPHCharacteristic } from './characteristics/PH';
-import { attachCustomConductivityCharacteristic } from './characteristics/conductivity';
 import { getMeasurementValue } from './measurements';
 
 export const CHEMISTRY_METRICS = ['ph', 'orp', 'conductivity'] as const;
 export type ChemistryMetric = typeof CHEMISTRY_METRICS[number];
 
+type DensityCharacteristicKey = 'VOCDensity' | 'SulphurDioxideDensity' | 'PM10Density';
+
 const CHEMISTRY_SERVICE_DEFINITIONS: Record<ChemistryMetric, {
-  customServiceUuid: string;
+  characteristicKey: DensityCharacteristicKey;
+  legacyCustomServiceUuid: string;
+  maxValue: number;
+  minStep: number;
   name: string;
 }> = {
   ph: {
-    customServiceUuid: '1D7BEBC7-BF34-4212-8462-0AAB920AB181',
+    characteristicKey: 'VOCDensity',
+    legacyCustomServiceUuid: '1D7BEBC7-BF34-4212-8462-0AAB920AB181',
+    maxValue: 14,
+    minStep: 0.1,
     name: 'Pool pH',
   },
   orp: {
-    customServiceUuid: '0BE8BDB1-7A80-45B0-93B8-B2B70949DBD0',
+    characteristicKey: 'SulphurDioxideDensity',
+    legacyCustomServiceUuid: '0BE8BDB1-7A80-45B0-93B8-B2B70949DBD0',
+    maxValue: 1100,
+    minStep: 1,
     name: 'Pool ORP',
   },
   conductivity: {
-    customServiceUuid: 'B65A5E83-99B8-44AB-9A4D-4FF2C2E8EAF1',
+    characteristicKey: 'PM10Density',
+    legacyCustomServiceUuid: 'B65A5E83-99B8-44AB-9A4D-4FF2C2E8EAF1',
+    maxValue: 100000,
+    minStep: 0.1,
     name: 'Pool Conductivity',
   },
 };
@@ -73,21 +84,25 @@ export class ChemistryAccessory {
         this.accessory.removeService(legacyTemperatureSensor);
       }
 
-      const customService = this.accessory.services.find(service => service.UUID === serviceDefinition.customServiceUuid);
-      if (customService) {
-        this.service = customService;
-      } else {
-        this.service = new this.platform.api.hap.Service(serviceDefinition.name, serviceDefinition.customServiceUuid);
-        this.accessory.addService(this.service);
+      const legacyCustomService = this.accessory.services.find(s => s.UUID === serviceDefinition.legacyCustomServiceUuid);
+      if (legacyCustomService) {
+        this.accessory.removeService(legacyCustomService);
       }
 
+      this.service = this.accessory.getService(this.platform.Service.AirQualitySensor) ||
+        this.accessory.addService(this.platform.Service.AirQualitySensor, serviceDefinition.name);
+
       this.service.setCharacteristic(this.platform.Characteristic.Name, `${serviceDefinition.name} ${deviceSerial}`);
-      const attachByMetric = {
-        ph: () => attachCustomPHCharacteristic(this.service!, this.platform.api),
-        orp: () => attachCustomORPCharacteristic(this.service!, this.platform.api),
-        conductivity: () => attachCustomConductivityCharacteristic(this.service!, this.platform.api),
-      };
-      attachByMetric[this.metric]().onGet(this.handleCurrentMetricGet.bind(this));
+      this.service.setCharacteristic(this.platform.Characteristic.AirQuality,
+        this.platform.Characteristic.AirQuality.UNKNOWN);
+
+      const ctor = this.platform.Characteristic[serviceDefinition.characteristicKey];
+      if (!this.service.testCharacteristic(ctor)) {
+        this.service.addOptionalCharacteristic(ctor);
+      }
+      this.service.getCharacteristic(ctor)
+        .setProps({ maxValue: serviceDefinition.maxValue, minStep: serviceDefinition.minStep, minValue: 0 })
+        .onGet(this.handleCurrentMetricGet.bind(this));
 
       setInterval(() => {
         this.getPoolData().catch((error) => {
