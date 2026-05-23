@@ -131,6 +131,8 @@ export class PoolAccessory {
       return numericValue;
     }
 
+    this.platform.log.warn(`Unable to read ${measurementName} measurement, keeping previous value: ${fallbackValue}`);
+
     return fallbackValue;
   }
 
