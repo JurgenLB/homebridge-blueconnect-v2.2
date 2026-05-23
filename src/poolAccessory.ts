@@ -125,6 +125,13 @@ export class PoolAccessory {
     fallbackValue: number,
   ): number {
     const measurement = measurements.find((element) => element.name === measurementName)?.value;
+
+    if (measurement === null || measurement === undefined) {
+      this.platform.log.warn(`Unable to read ${measurementName} measurement, keeping previous value: ${fallbackValue}`);
+
+      return fallbackValue;
+    }
+
     const numericValue = Number(measurement);
 
     if (Number.isFinite(numericValue)) {
