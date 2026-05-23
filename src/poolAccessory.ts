@@ -110,7 +110,7 @@ export class PoolAccessory {
   }
 
   /**
-     * Handle requests to get the current value of the "Current Conductivity" characteristic
+     * Handle requests to get the current value of the "Conductivity" characteristic
      */
   async handleCurrentConductivityGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
