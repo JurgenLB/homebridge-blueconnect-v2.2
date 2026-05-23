@@ -19,7 +19,7 @@ export function attachCustomORPCharacteristic(target: Service, api: API): Charac
   } else {
     result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, UUID, {
       format: Formats.UINT16,
-      unit: 'mBar',
+      unit: 'mV',
       maxValue: 1100,
       minValue: 0,
       minStep: 1,
