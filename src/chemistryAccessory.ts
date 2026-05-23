@@ -123,13 +123,16 @@ export class ChemistryAccessory {
 
       const measurements: Array<{ name: string; value: string | number }> = lastMeasurement.data;
 
-      this.currentORP = getMeasurementValue(this.platform.log, measurements, 'orp', this.currentORP);
-      this.currentPH = getMeasurementValue(this.platform.log, measurements, 'ph', this.currentPH);
-      this.currentConductivity = getMeasurementValue(this.platform.log, measurements, 'conductivity', this.currentConductivity);
-
-      this.platform.log.debug('Chemistry ORP: ' + this.currentORP);
-      this.platform.log.debug('Chemistry pH: ' + this.currentPH);
-      this.platform.log.debug('Chemistry conductivity: ' + this.currentConductivity);
+      if (this.metric === 'ph') {
+        this.currentPH = getMeasurementValue(this.platform.log, measurements, 'ph', this.currentPH);
+        this.platform.log.debug('Chemistry pH: ' + this.currentPH);
+      } else if (this.metric === 'orp') {
+        this.currentORP = getMeasurementValue(this.platform.log, measurements, 'orp', this.currentORP);
+        this.platform.log.debug('Chemistry ORP: ' + this.currentORP);
+      } else {
+        this.currentConductivity = getMeasurementValue(this.platform.log, measurements, 'conductivity', this.currentConductivity);
+        this.platform.log.debug('Chemistry conductivity: ' + this.currentConductivity);
+      }
     } catch (error) {
       this.platform.log.error('Error getting chemistry measurement: ' + error);
     }
