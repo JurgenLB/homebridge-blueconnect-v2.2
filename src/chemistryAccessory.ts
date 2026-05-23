@@ -34,7 +34,7 @@ export class ChemistryAccessory {
       );
 
       // LightSensor is used as the visible HomeKit-compatible service to expose chemistry values.
-      this.service.setCharacteristic(this.platform.Characteristic.Name, `${deviceSerial} Chemistry`);
+      this.service.setCharacteristic(this.platform.Characteristic.Name, `Pool Chemistry ${deviceSerial}`);
       this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
         .onGet(this.handleCurrentORPGet.bind(this));
       attachCustomPHCharacteristic(this.service, this.platform.api)
@@ -48,7 +48,7 @@ export class ChemistryAccessory {
         this.getPoolData().catch((error) => {
           this.platform.log.error('Error getting current chemistry data: ' + error);
         });
-      }, 60000 * (this.platform.config.refreshInterval || 30) );
+      }, 60000 * (this.platform.config.refreshInterval || 30));
     }).catch((error) => {
       this.platform.log.error('Error initializing chemistry accessory: ' + error);
     });
