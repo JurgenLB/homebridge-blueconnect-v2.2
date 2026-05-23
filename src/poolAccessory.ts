@@ -127,8 +127,8 @@ export class PoolAccessory {
   ): number {
     const measurementValue = measurements.find((element) => element.name === measurementName)?.value;
 
-    if (measurementValue === null || measurementValue === undefined) {
-      this.platform.log.warn(`Unable to read ${measurementName} measurement, keeping previous value: ${fallbackValue}`);
+    if (measurementValue == null) {
+      this.platform.log.warn(`Missing ${measurementName} measurement, keeping previous value: ${fallbackValue}`);
 
       return fallbackValue;
     }
@@ -139,7 +139,7 @@ export class PoolAccessory {
       return numericValue;
     }
 
-    this.platform.log.warn(`Unable to read ${measurementName} measurement, keeping previous value: ${fallbackValue}`);
+    this.platform.log.warn(`Invalid ${measurementName} measurement value, keeping previous value: ${fallbackValue}`);
 
     return fallbackValue;
   }
@@ -164,11 +164,11 @@ export class PoolAccessory {
 
       if (!Array.isArray(lastMeasurement.data)) {
         this.platform.log.warn('Last measurement payload is missing data array, keeping previous values');
+
+        return;
       }
 
-      const measurements: Array<{ name: string; value: number }> = Array.isArray(lastMeasurement.data)
-        ? lastMeasurement.data
-        : [];
+      const measurements: Array<{ name: string; value: number }> = lastMeasurement.data;
 
       this.currentTemperature = this.getMeasurementValue(measurements, 'temperature', this.currentTemperature);
       this.currentORP = this.getMeasurementValue(measurements, 'orp', this.currentORP);
