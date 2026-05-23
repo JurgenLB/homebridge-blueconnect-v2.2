@@ -46,6 +46,7 @@ export class PoolAccessory {
             attachCustomORPCharacteristic(this.service, this.platform.api)
               .onGet(this.handleCurrentORPGet.bind(this));
 
+            // No built-in HAP service covers pH/ORP/conductivity together, so expose a custom service.
             this.chemistryService = this.accessory.getService(CHEMISTRY_SERVICE_NAME) ||
               this.accessory.addService(new this.platform.api.hap.Service(CHEMISTRY_SERVICE_NAME, CHEMISTRY_SERVICE_UUID));
             this.chemistryService.setCharacteristic(this.platform.Characteristic.Name, CHEMISTRY_SERVICE_NAME);
@@ -124,15 +125,15 @@ export class PoolAccessory {
     measurementName: string,
     fallbackValue: number,
   ): number {
-    const measurement = measurements.find((element) => element.name === measurementName)?.value;
+    const measurementValue = measurements.find((element) => element.name === measurementName)?.value;
 
-    if (measurement === null || measurement === undefined) {
+    if (measurementValue === null || measurementValue === undefined) {
       this.platform.log.warn(`Unable to read ${measurementName} measurement, keeping previous value: ${fallbackValue}`);
 
       return fallbackValue;
     }
 
-    const numericValue = Number(measurement);
+    const numericValue = Number(measurementValue);
 
     if (Number.isFinite(numericValue)) {
       return numericValue;
@@ -163,7 +164,10 @@ export class PoolAccessory {
 
       const measurements: Array<{ name: string; value: number }> = Array.isArray(lastMeasurement.data)
         ? lastMeasurement.data
-        : [];
+        : (() => {
+          this.platform.log.warn('Last measurement payload is missing data array, keeping previous values');
+          return [];
+        })();
 
       this.currentTemperature = this.getMeasurementValue(measurements, 'temperature', this.currentTemperature);
       this.currentORP = this.getMeasurementValue(measurements, 'orp', this.currentORP);
