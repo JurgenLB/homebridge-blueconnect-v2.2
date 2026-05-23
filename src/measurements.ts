@@ -2,7 +2,7 @@ import type { Logging } from 'homebridge';
 
 export function getMeasurementValue(
   log: Logging,
-  measurements: Array<{ name: string; value: number }>,
+  measurements: Array<{ name: string; value: string | number }>,
   measurementName: string,
   fallbackValue: number,
 ): number {
