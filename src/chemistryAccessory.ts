@@ -18,8 +18,8 @@ export class ChemistryAccessory {
     this.accessory.log = this.platform.log;
 
     this.getPoolData().then(() => {
-      const deviceModel = this.accessory.context.device.blue_device?.hw_type ?? 'BlueRiiot';
-      const firmwareRevision = this.accessory.context.device.blue_device?.fw_version_psoc ?? 'Unknown';
+      const deviceModel = this.accessory.context.device.blue_device.hw_type;
+      const firmwareRevision = this.accessory.context.device.blue_device.fw_version_psoc;
       const deviceSerial = this.accessory.context.device.blue_device_serial;
 
       this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -32,6 +32,7 @@ export class ChemistryAccessory {
         this.platform.Service.LightSensor) || this.accessory.addService(this.platform.Service.LightSensor, 'Pool Chemistry',
       );
 
+      // LightSensor is used as the visible HomeKit-compatible service to expose chemistry values.
       this.service.setCharacteristic(this.platform.Characteristic.Name, `${deviceSerial} Chemistry`);
       this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
         .onGet(this.handleCurrentORPGet.bind(this));

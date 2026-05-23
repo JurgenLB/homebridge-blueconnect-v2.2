@@ -51,7 +51,7 @@ export class PoolAccessory {
               this.accessory.addService(new this.platform.api.hap.Service(CHEMISTRY_SERVICE_NAME, CHEMISTRY_SERVICE_UUID));
             this.chemistryService.setCharacteristic(this.platform.Characteristic.Name, CHEMISTRY_SERVICE_NAME);
             attachCustomPHCharacteristic(this.chemistryService, this.platform.api)
-              .onGet(this.handleCurrentChemistryPHGet.bind(this));
+              .onGet(this.handleCurrentCustomPHGet.bind(this));
             attachCustomORPCharacteristic(this.chemistryService, this.platform.api)
               .onGet(this.handleCurrentORPGet.bind(this));
             attachCustomConductivityCharacteristic(this.chemistryService, this.platform.api)
@@ -90,7 +90,7 @@ export class PoolAccessory {
   /**
    * Handle requests to get the current value of the custom pH characteristic.
    */
-  async handleCurrentChemistryPHGet(): Promise<CharacteristicValue> {
+  async handleCurrentCustomPHGet(): Promise<CharacteristicValue> {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentPH;
     } else {
