@@ -17,7 +17,7 @@ export function attachCustomConductivityCharacteristic(target: Service, api: API
   } else {
     result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, UUID, {
       format: Formats.FLOAT,
-      unit: 'µS',
+      unit: 'µS/cm',
       maxValue: 100000,
       minValue: 0,
       minStep: 0.1,
