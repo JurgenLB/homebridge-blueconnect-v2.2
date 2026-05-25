@@ -4,7 +4,17 @@ import { PoolAccessory } from './poolAccessory.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 
 import { BlueriiotAPI } from './api/blueriiot-api.js';
+import { CHEMISTRY_METRICS, ChemistryAccessory, ChemistryMetric } from './chemistryAccessory';
 import { WeatherAccessory } from './weatherAccessory';
+
+type BlueDeviceContext = {
+  blue_device_serial: string;
+  swimming_pool_id: string;
+  blue_device: {
+    hw_type: string;
+    fw_version_psoc: string;
+  };
+};
 
 export class BlueConnectPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
@@ -78,8 +88,9 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
             this.log.debug('BlueConnect: BlueDevices: ' + JSON.stringify(blueDevices, null, 2));
             this.log.info('BlueConnect: Found ' + blueDevices.length + ' devices');
 
-            blueDevices.forEach((blueDevice : { blue_device_serial : string }) => {
+            blueDevices.forEach((blueDevice : BlueDeviceContext) => {
               this.processBlueDevice(blueDevice);
+              this.processChemistryAccessories(blueDevice);
             });
 
             this.processWeatherAccessory(poolId);
@@ -125,7 +136,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private processBlueDevice(blueDevice: { blue_device_serial: string }) {
+  private processBlueDevice(blueDevice: BlueDeviceContext) {
     const uuid = this.api.hap.uuid.generate(blueDevice.blue_device_serial);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
@@ -141,6 +152,34 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
       accessory.context.device = blueDevice;
 
       new PoolAccessory(this, accessory);
+
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    }
+  }
+
+  private processChemistryAccessories(blueDevice: BlueDeviceContext) {
+    CHEMISTRY_METRICS.forEach((metric) => {
+      this.processChemistryAccessory(blueDevice, metric);
+    });
+  }
+
+  private processChemistryAccessory(blueDevice: BlueDeviceContext, metric: ChemistryMetric) {
+    const uuid = this.api.hap.uuid.generate(`${blueDevice.blue_device_serial}-chemistry-${metric}`);
+    const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+    const accessoryName = `${blueDevice.blue_device_serial}-chemistry-${metric}`;
+
+    if (existingAccessory) {
+      this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+
+      new ChemistryAccessory(this, existingAccessory, metric);
+    } else {
+      this.log.info('Adding new accessory:', accessoryName);
+
+      const accessory = new this.api.platformAccessory(accessoryName, uuid);
+
+      accessory.context.device = blueDevice;
+
+      new ChemistryAccessory(this, accessory, metric);
 
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }
