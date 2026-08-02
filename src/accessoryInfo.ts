@@ -1,8 +1,6 @@
 import type { PlatformAccessory } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pkg = require('../package.json') as { displayName: string; version: string };
+import { PLUGIN_VERSION } from './settings.js';
 
 /**
  * Sets the AccessoryInformation characteristics for an accessory using plugin metadata
@@ -12,18 +10,20 @@ const pkg = require('../package.json') as { displayName: string; version: string
  * @param platform     The BlueConnect platform instance.
  * @param serialNumber Optional serial number to set on the accessory.
  */
+
+type AccessoryInformationOptions = {
+  model: string;
+  serialNumber: string;
+};
+
 export function setAccessoryInfo(
   accessory: PlatformAccessory,
   platform: BlueConnectPlatform,
-  serialNumber?: string,
-): void {
-  const info = accessory.getService(platform.Service.AccessoryInformation)!;
-
-  info.setCharacteristic(platform.Characteristic.Manufacturer, 'BlueRiiot');
-  info.setCharacteristic(platform.Characteristic.Model, pkg.displayName);
-  info.setCharacteristic(platform.Characteristic.FirmwareRevision, pkg.version);
-
-  if (serialNumber !== undefined) {
-    info.setCharacteristic(platform.Characteristic.SerialNumber, serialNumber);
+  options: AccessoryInformationOptions,
+) {
+  accessory.getService(platform.Service.AccessoryInformation)!
+    .setCharacteristic(platform.Characteristic.Manufacturer, 'BlueRiiot')
+    .setCharacteristic(platform.Characteristic.Model, options.model)
+    .setCharacteristic(platform.Characteristic.SerialNumber, options.serialNumber)
+    .setCharacteristic(platform.Characteristic.FirmwareRevision, PLUGIN_VERSION);
   }
-}
