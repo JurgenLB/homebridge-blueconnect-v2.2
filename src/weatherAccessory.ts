@@ -1,5 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
+import { setAccessoryInfo } from './accessoryInfo.js';
 
 export class WeatherAccessory {
   private service: Service | null = null;
@@ -20,23 +21,22 @@ export class WeatherAccessory {
     this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
 
     this.getWeatherTemperature().then(() => {
-            // set accessory information
-            this.accessory.getService(this.platform.Service.AccessoryInformation)!
-              .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
+      // set accessory information
+      setAccessoryInfo(this.accessory, this.platform);
 
-            this.service = this.accessory.getService(
-              this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
-            );
+      this.service = this.accessory.getService(
+        this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
+      );
 
-            this.service.setCharacteristic(this.platform.Characteristic.Name, 'Current Weather Temperature');
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-              .onGet(this.handleCurrentTemperatureGet.bind(this));
+      this.service.setCharacteristic(this.platform.Characteristic.Name, 'Current Weather Temperature');
+      this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+        .onGet(this.handleCurrentTemperatureGet.bind(this));
 
-            setInterval(() => {
-              this.getWeatherTemperature().catch((error) => {
-                this.platform.log.error('Error getting current temperature: ' + error);
-              });
-            }, 60000 * (this.platform.config.refreshInterval || 30) );
+      setInterval(() => {
+        this.getWeatherTemperature().catch((error) => {
+          this.platform.log.error('Error getting current temperature: ' + error);
+        });
+      }, 60000 * (this.platform.config.refreshInterval || 30) );
     });
   }
 

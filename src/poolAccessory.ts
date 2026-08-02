@@ -1,6 +1,7 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP';
+import { setAccessoryInfo } from './accessoryInfo.js';
 
 export class PoolAccessory {
   private service: Service | null = null;
@@ -18,32 +19,28 @@ export class PoolAccessory {
     this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
 
     this.getPoolData().then(() => {
-            // set accessory information
-            this.accessory.getService(this.platform.Service.AccessoryInformation)!
-              .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
-              .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
-              .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
-              .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
+      // set accessory information
+      setAccessoryInfo(this.accessory, this.platform, this.accessory.context.device.blue_device_serial);
 
-            this.service = this.accessory.getService(
-              this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
-            );
+      this.service = this.accessory.getService(
+        this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
+      );
 
-            this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-              .onGet(this.handleCurrentTemperatureGet.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-              .onGet(this.handleCurrentPHGet.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-              .onGet(this.handleCurrentORPGet.bind(this));
-            attachCustomORPCharacteristic(this.service, this.platform.api)
-              .onGet(this.handleCurrentORPGet.bind(this));
+      this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.blue_device_serial);
+      this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+        .onGet(this.handleCurrentTemperatureGet.bind(this));
+      this.service.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+        .onGet(this.handleCurrentPHGet.bind(this));
+      this.service.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+        .onGet(this.handleCurrentORPGet.bind(this));
+      attachCustomORPCharacteristic(this.service, this.platform.api)
+        .onGet(this.handleCurrentORPGet.bind(this));
 
-            setInterval(() => {
-              this.getPoolData().catch((error) => {
-                this.platform.log.error('Error getting current pool data: ' + error);
-              });
-            }, 60000 * (this.platform.config.refreshInterval || 30) );
+      setInterval(() => {
+        this.getPoolData().catch((error) => {
+          this.platform.log.error('Error getting current pool data: ' + error);
+        });
+      }, 60000 * (this.platform.config.refreshInterval || 30) );
     });
   }
 
