@@ -22,7 +22,7 @@ export class WeatherAccessory {
 
     this.getWeatherTemperature().then(() => {
       // set accessory information
-      setAccessoryInfo(this.accessory, this.platform);
+      setAccessoryInfo(this.accessory, this.platform, this.accessory.context.device.blue_device_serial);
 
       this.service = this.accessory.getService(
         this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
