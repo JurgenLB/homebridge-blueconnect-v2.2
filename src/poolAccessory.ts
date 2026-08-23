@@ -1,6 +1,7 @@
 import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
 import { attachCustomORPCharacteristic } from './characteristics/ORP';
+import { getMeasurementValue } from './measurements';
 
 export class PoolAccessory {
   private service: Service | null = null;
@@ -8,7 +9,8 @@ export class PoolAccessory {
 
   private currentTemperature = 25;
   private currentORP = 750;
-  private currentPH = 0;
+  private currentPH = 7;
+  private currentConductivity = 0;
 
   constructor(
         private readonly platform: BlueConnectPlatform,
@@ -98,9 +100,18 @@ export class PoolAccessory {
 
       const lastMeasurement = JSON.parse(lastMeasurementString);
 
-      this.currentTemperature = lastMeasurement.data.find((element: { name: string }) => element.name === 'temperature').value;
-      this.currentORP = lastMeasurement.data.find((element: { name: string }) => element.name === 'orp').value;
-      this.currentPH = lastMeasurement.data.find((element: { name: string }) => element.name === 'ph').value;
+      if (!Array.isArray(lastMeasurement.data)) {
+        this.platform.log.warn('Last measurement payload is missing data array, keeping previous values');
+
+        return;
+      }
+
+      const measurements: Array<{ name: string; value: string | number }> = lastMeasurement.data;
+
+      this.currentTemperature = getMeasurementValue(this.platform.log, measurements, 'temperature', this.currentTemperature);
+      this.currentORP = getMeasurementValue(this.platform.log, measurements, 'orp', this.currentORP);
+      this.currentPH = getMeasurementValue(this.platform.log, measurements, 'ph', this.currentPH);
+      this.currentConductivity = getMeasurementValue(this.platform.log, measurements, 'conductivity', this.currentConductivity);
 
       this.loggingService.addEntry({
         time: Math.round(new Date().valueOf() / 1000),
@@ -112,6 +123,7 @@ export class PoolAccessory {
       this.platform.log.debug('Current temperature: ' + this.currentTemperature);
       this.platform.log.debug('Current ORP: ' + this.currentORP);
       this.platform.log.debug('Current pH: ' + this.currentPH);
+      this.platform.log.debug('Current conductivity: ' + this.currentConductivity);
     } catch (error) {
       this.platform.log.error('Error getting last measurement: ' + error);
     }
