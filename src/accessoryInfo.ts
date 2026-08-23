@@ -1,19 +1,22 @@
 import type { PlatformAccessory } from 'homebridge';
 import type { BlueConnectPlatform } from './blueConnectPlatform.js';
-import { PLUGIN_VERSION } from './settings.js';
 
 /**
  * Sets the AccessoryInformation characteristics for an accessory using plugin metadata
  * from package.json. The model is always set to the plugin's displayName ('BlueConnect').
  *
- * @param accessory    The platform accessory to configure.
- * @param platform     The BlueConnect platform instance.
- * @param serialNumber Optional serial number to set on the accessory.
+ * @param accessory         The platform accessory to configure.
+ * @param platform          The BlueConnect platform instance.
+ * @param serialNumber      Optional serial number to set on the accessory.
+ * @param servicePlan       Optional contract_servicePlan from BlueConnect-device.
+ * @param HardwareRevision  Optional fw_version_psoc from BlueConnect-device.
  */
 
 type AccessoryInformationOptions = {
   model: string;
   serialNumber: string;
+  servicePlan: string;
+  HardwareRevision: string;  
 };
 
 export function setAccessoryInfo(
@@ -25,5 +28,6 @@ export function setAccessoryInfo(
     .setCharacteristic(platform.Characteristic.Manufacturer, 'BlueRiiot')
     .setCharacteristic(platform.Characteristic.Model, options.model)
     .setCharacteristic(platform.Characteristic.SerialNumber, options.serialNumber)
-    .setCharacteristic(platform.Characteristic.FirmwareRevision, PLUGIN_VERSION);
-  }
+    .setCharacteristic(platform.Characteristic.FirmwareRevision, this.version)
+    .setCharacteristic(platform.Characteristic.HardwareRevision, options.hardware);
+}
