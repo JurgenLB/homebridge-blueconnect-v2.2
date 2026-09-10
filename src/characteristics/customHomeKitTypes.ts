@@ -1,10 +1,9 @@
 import type { API, Characteristic, WithUUID } from 'homebridge';
 
-// Use Eve-compatible UUID for ORP (already in use / established)
-const ORP_UUID = 'E863F10F-079E-48FF-8F27-9C2605A29F52';
-
-// Custom UUIDs for PH and Conductivity (valid UUID v1 format)
+// Custom UUIDs for all pool measurement characteristics.
+// Using a dedicated BlueConnect namespace to avoid collisions with Eve or other plugins.
 const PH_UUID = 'AB810001-0000-1000-8000-135D90492D38';
+const ORP_UUID = 'AB810003-0000-1000-8000-135D90492D38';
 const CONDUCTIVITY_UUID = 'AB810002-0000-1000-8000-135D90492D38';
 
 export type PoolCustomCharacteristic = WithUUID<new () => Characteristic>;
