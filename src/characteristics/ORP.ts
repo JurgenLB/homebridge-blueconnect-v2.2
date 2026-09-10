@@ -11,7 +11,5 @@ import { getCustomCharacteristics } from './customHomeKitTypes.js';
  */
 export function attachCustomORPCharacteristic(target: Service, api: API): Characteristic {
   const { ORP } = getCustomCharacteristics(api);
-  return target.testCharacteristic(ORP.UUID)
-    ? target.getCharacteristic(ORP.UUID)!
-    : target.addCharacteristic(ORP);
+  return target.getCharacteristic(ORP.UUID) ?? target.addCharacteristic(ORP);
 }

@@ -34,22 +34,18 @@ export class PoolAccessory {
             this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
               .onGet(this.handleCurrentTemperatureGet.bind(this));
 
-            // Attach custom characteristics for PH, ORP and Conductivity
+            // Attach custom characteristics for PH, ORP and Conductivity.
+            // Use getCharacteristic(UUID) first to avoid the duplicate-UUID error
+            // that occurs when a cached accessory already has the characteristic.
             const { PH, ORP, Conductivity } = getCustomCharacteristics(this.platform.api);
 
-            const phChar = this.service.testCharacteristic(PH.UUID)
-              ? this.service.getCharacteristic(PH.UUID)!
-              : this.service.addCharacteristic(PH);
+            const phChar = this.service.getCharacteristic(PH.UUID) ?? this.service.addCharacteristic(PH);
             phChar.onGet(this.handleCurrentPHGet.bind(this));
 
-            const orpChar = this.service.testCharacteristic(ORP.UUID)
-              ? this.service.getCharacteristic(ORP.UUID)!
-              : this.service.addCharacteristic(ORP);
+            const orpChar = this.service.getCharacteristic(ORP.UUID) ?? this.service.addCharacteristic(ORP);
             orpChar.onGet(this.handleCurrentORPGet.bind(this));
 
-            const conductivityChar = this.service.testCharacteristic(Conductivity.UUID)
-              ? this.service.getCharacteristic(Conductivity.UUID)!
-              : this.service.addCharacteristic(Conductivity);
+            const conductivityChar = this.service.getCharacteristic(Conductivity.UUID) ?? this.service.addCharacteristic(Conductivity);
             conductivityChar.onGet(this.handleCurrentConductivityGet.bind(this));
 
             setInterval(() => {
