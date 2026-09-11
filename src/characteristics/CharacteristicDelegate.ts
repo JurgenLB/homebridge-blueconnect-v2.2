@@ -24,7 +24,7 @@ export class CharacteristicDelegate<T extends number | string | boolean> {
     private readonly _log: Logging,
     private readonly _accessory: PlatformAccessory,
     /** The service to attach the characteristic to. */
-    service: { getCharacteristic(uuid: string): Characteristic | undefined; addCharacteristic(ctor: PoolCustomCharacteristic): Characteristic },
+    service: { getCharacteristic(ctor: PoolCustomCharacteristic): Characteristic },
     /** The custom characteristic class (must have a static `UUID` property). */
     CharacteristicClass: PoolCustomCharacteristic,
     /** Key used to persist the value inside `accessory.context`. */
@@ -37,10 +37,11 @@ export class CharacteristicDelegate<T extends number | string | boolean> {
     this._contextKey = contextKey;
     this._unit = unit;
 
-    // Reuse an existing characteristic (cached accessory) or add a new one.
-    this._characteristic =
-      service.getCharacteristic(CharacteristicClass.UUID) ??
-      service.addCharacteristic(CharacteristicClass);
+    // Use the class-based overload: HAP returns the characteristic if it
+    // already exists on the service, or adds it if absent. This avoids the
+    // duplicate-UUID error that occurs when the service constructor already
+    // pre-wired the characteristic via addCharacteristic().
+    this._characteristic = service.getCharacteristic(CharacteristicClass);
 
     // Restore persisted value, or seed with the default.
     if (this._accessory.context[this._contextKey] == null) {
