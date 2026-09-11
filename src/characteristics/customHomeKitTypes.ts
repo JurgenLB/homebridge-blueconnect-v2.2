@@ -1,4 +1,4 @@
-import type { API, Characteristic, WithUUID } from 'homebridge';
+import type { API, Characteristic, Service, WithUUID } from 'homebridge';
 
 // Custom UUIDs for all pool measurement characteristics.
 // Using a dedicated BlueConnect namespace to avoid collisions with Eve or other plugins.
@@ -6,7 +6,13 @@ const PH_UUID = 'AB810001-0000-1000-8000-135D90492D38';
 const ORP_UUID = 'AB810003-0000-1000-8000-135D90492D38';
 const CONDUCTIVITY_UUID = 'AB810002-0000-1000-8000-135D90492D38';
 
+// Custom Service UUIDs – one dedicated service per pool measurement.
+const PH_SERVICE_UUID = 'AB820001-0000-1000-8000-135D90492D38';
+const ORP_SERVICE_UUID = 'AB820003-0000-1000-8000-135D90492D38';
+const CONDUCTIVITY_SERVICE_UUID = 'AB820002-0000-1000-8000-135D90492D38';
+
 export type PoolCustomCharacteristic = WithUUID<new () => Characteristic>;
+export type PoolCustomService = WithUUID<new (displayName?: string, subtype?: string) => Service>;
 
 export type PoolCustomCharacteristics = {
   PH: PoolCustomCharacteristic;
@@ -14,15 +20,22 @@ export type PoolCustomCharacteristics = {
   Conductivity: PoolCustomCharacteristic;
 };
 
+export type PoolCustomServices = {
+  PHSensor: PoolCustomService;
+  ORPSensor: PoolCustomService;
+  ConductivitySensor: PoolCustomService;
+};
+
 let _characteristics: PoolCustomCharacteristics | null = null;
+let _services: PoolCustomServices | null = null;
 
 /**
  * Returns (and lazily initialises) the custom pool HomeKit characteristics.
  *
- * The design mirrors the `CustomHomeKitTypes` pattern from homebridge-lib:
- * each characteristic is a subclass of `hap.Characteristic` with a no-arg
- * constructor and a static `UUID` property, so it can be used directly with
- * `service.addCharacteristic()` and `service.testCharacteristic()`.
+ * The design mirrors the `CustomHomeKitTypes` / `MyHomeKitTypes` pattern from
+ * homebridge-lib: each characteristic is a subclass of `hap.Characteristic`
+ * with a no-arg constructor and a static `UUID` property, so it can be used
+ * directly with `service.addCharacteristic()`.
  *
  * @param api - The Homebridge API instance.
  */
@@ -84,4 +97,56 @@ export function getCustomCharacteristics(api: API): PoolCustomCharacteristics {
   _characteristics = { PH, ORP, Conductivity };
 
   return _characteristics;
+}
+
+/**
+ * Returns (and lazily initialises) the custom pool HomeKit services.
+ *
+ * Each service mirrors the pattern used in `MyHomeKitTypes.js` from
+ * homebridge-lib: it extends `hap.Service`, pre-adds the matching custom
+ * characteristic, and carries a static `UUID` property.
+ *
+ * Services are separated from the TemperatureSensor so that HomeKit (and apps
+ * like Eve) see three clearly-labelled, single-purpose tiles.
+ *
+ * @param api - The Homebridge API instance.
+ */
+export function getCustomServices(api: API): PoolCustomServices {
+  if (_services !== null) {
+    return _services;
+  }
+
+  const { Service } = api.hap;
+  const { PH, ORP, Conductivity } = getCustomCharacteristics(api);
+
+  /** Dedicated service exposing the PH characteristic. */
+  class PHSensor extends Service {
+    static readonly UUID = PH_SERVICE_UUID;
+    constructor(displayName = 'pH Sensor', subtype?: string) {
+      super(displayName, PH_SERVICE_UUID, subtype);
+      this.addCharacteristic(PH);
+    }
+  }
+
+  /** Dedicated service exposing the ORP characteristic. */
+  class ORPSensor extends Service {
+    static readonly UUID = ORP_SERVICE_UUID;
+    constructor(displayName = 'ORP Sensor', subtype?: string) {
+      super(displayName, ORP_SERVICE_UUID, subtype);
+      this.addCharacteristic(ORP);
+    }
+  }
+
+  /** Dedicated service exposing the Conductivity characteristic. */
+  class ConductivitySensor extends Service {
+    static readonly UUID = CONDUCTIVITY_SERVICE_UUID;
+    constructor(displayName = 'Conductivity Sensor', subtype?: string) {
+      super(displayName, CONDUCTIVITY_SERVICE_UUID, subtype);
+      this.addCharacteristic(Conductivity);
+    }
+  }
+
+  _services = { PHSensor, ORPSensor, ConductivitySensor };
+
+  return _services;
 }
