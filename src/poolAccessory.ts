@@ -43,17 +43,20 @@ export class PoolAccessory {
       const { PH, ORP, Conductivity } = getCustomCharacteristics(this.platform.api);
 
       const phService =
-        this.accessory.getServiceById(PHSensor.UUID, 'ph-sensor') ||
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.accessory.getServiceById(PHSensor as any, 'ph-sensor') ||
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.accessory.addService(PHSensor as any, 'pH Sensor', 'ph-sensor');
 
       const orpService =
-        this.accessory.getServiceById(ORPSensor.UUID, 'orp-sensor') ||
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.accessory.getServiceById(ORPSensor as any, 'orp-sensor') ||
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.accessory.addService(ORPSensor as any, 'ORP Sensor', 'orp-sensor');
 
       const conductivityService =
-        this.accessory.getServiceById(ConductivitySensor.UUID, 'conductivity-sensor') ||
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.accessory.getServiceById(ConductivitySensor as any, 'conductivity-sensor') ||
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.accessory.addService(ConductivitySensor as any, 'Conductivity Sensor', 'conductivity-sensor');
 
