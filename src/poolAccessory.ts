@@ -18,71 +18,74 @@ export class PoolAccessory {
     this.accessory.log = this.platform.log;
     this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
 
-    this.getPoolData().then(() => {
-      // Accessory information
-      this.accessory.getService(this.platform.Service.AccessoryInformation)!
-        .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
-        .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
-        .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
-        .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device.fw_version_psoc);
+    // ── Accessory information ────────────────────────────────────────────────
+    this.accessory.getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
+      .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device?.hw_type ?? 'BlueConnect')
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device?.fw_version_psoc ?? '');
 
-      // ── Temperature (standard TemperatureSensor service) ──────────────────
-      const tempService =
-        this.accessory.getService(this.platform.Service.TemperatureSensor) ||
-        this.accessory.addService(this.platform.Service.TemperatureSensor);
+    // ── Temperature (standard TemperatureSensor service) ────────────────────
+    const tempService =
+      this.accessory.getService(this.platform.Service.TemperatureSensor) ||
+      this.accessory.addService(this.platform.Service.TemperatureSensor);
 
-      tempService.setCharacteristic(
-        this.platform.Characteristic.Name,
-        this.accessory.context.device.blue_device_serial,
-      );
-      tempService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-        .onGet(this.handleCurrentTemperatureGet.bind(this));
+    tempService.setCharacteristic(
+      this.platform.Characteristic.Name,
+      this.accessory.context.device.blue_device_serial,
+    );
+    tempService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+      .onGet(this.handleCurrentTemperatureGet.bind(this));
 
-      // ── Custom services (MyHomeKitTypes pattern) ───────────────────────────
-      const { PHSensor, ORPSensor, ConductivitySensor } = getCustomServices(this.platform.api);
-      const { PH, ORP, Conductivity } = getCustomCharacteristics(this.platform.api);
+    // ── Custom services (MyHomeKitTypes pattern) ─────────────────────────────
+    const { PHSensor, ORPSensor, ConductivitySensor } = getCustomServices(this.platform.api);
+    const { PH, ORP, Conductivity } = getCustomCharacteristics(this.platform.api);
 
-      const phService =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.accessory.getServiceById(PHSensor as any, 'ph-sensor') ||
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.accessory.addService(PHSensor as any, 'pH Sensor', 'ph-sensor');
+    const phService =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.accessory.getServiceById(PHSensor as any, 'ph-sensor') ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.accessory.addService(PHSensor as any, 'pH Sensor', 'ph-sensor');
 
-      const orpService =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.accessory.getServiceById(ORPSensor as any, 'orp-sensor') ||
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.accessory.addService(ORPSensor as any, 'ORP Sensor', 'orp-sensor');
+    const orpService =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.accessory.getServiceById(ORPSensor as any, 'orp-sensor') ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.accessory.addService(ORPSensor as any, 'ORP Sensor', 'orp-sensor');
 
-      const conductivityService =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.accessory.getServiceById(ConductivitySensor as any, 'conductivity-sensor') ||
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.accessory.addService(ConductivitySensor as any, 'Conductivity Sensor', 'conductivity-sensor');
+    const conductivityService =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.accessory.getServiceById(ConductivitySensor as any, 'conductivity-sensor') ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.accessory.addService(ConductivitySensor as any, 'Conductivity Sensor', 'conductivity-sensor');
 
-      // ── CharacteristicDelegates ────────────────────────────────────────────
-      const { hap } = this.platform.api;
-      const commFailure = hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE;
-      const isAuthenticated = () => this.platform.blueRiotAPI.isAuthenticated();
+    // ── CharacteristicDelegates ──────────────────────────────────────────────
+    const { hap } = this.platform.api;
+    const commFailure = hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE;
+    const isAuthenticated = () => this.platform.blueRiotAPI.isAuthenticated();
 
-      this.phDelegate = new CharacteristicDelegate<number>(
-        this.platform.log, this.accessory, phService, PH, 'ph', 7, ' pH',
-      ).onGet(isAuthenticated, hap.HapStatusError, commFailure);
+    this.phDelegate = new CharacteristicDelegate<number>(
+      this.platform.log, this.accessory, phService, PH, 'ph', 7, ' pH',
+    ).onGet(isAuthenticated, hap.HapStatusError, commFailure);
 
-      this.orpDelegate = new CharacteristicDelegate<number>(
-        this.platform.log, this.accessory, orpService, ORP, 'orp', 750, ' mV',
-      ).onGet(isAuthenticated, hap.HapStatusError, commFailure);
+    this.orpDelegate = new CharacteristicDelegate<number>(
+      this.platform.log, this.accessory, orpService, ORP, 'orp', 750, ' mV',
+    ).onGet(isAuthenticated, hap.HapStatusError, commFailure);
 
-      this.conductivityDelegate = new CharacteristicDelegate<number>(
-        this.platform.log, this.accessory, conductivityService, Conductivity, 'conductivity', 0, ' µS/cm',
-      ).onGet(isAuthenticated, hap.HapStatusError, commFailure);
+    this.conductivityDelegate = new CharacteristicDelegate<number>(
+      this.platform.log, this.accessory, conductivityService, Conductivity, 'conductivity', 0, ' µS/cm',
+    ).onGet(isAuthenticated, hap.HapStatusError, commFailure);
 
-      setInterval(() => {
-        this.getPoolData().catch((error) => {
-          this.platform.log.error('Error getting current pool data: ' + error);
-        });
-      }, 60000 * (this.platform.config.refreshInterval || 30));
+    // ── Initial data fetch + polling interval ────────────────────────────────
+    this.getPoolData().catch((error) => {
+      this.platform.log.error('Error getting initial pool data: ' + error);
     });
+
+    setInterval(() => {
+      this.getPoolData().catch((error) => {
+        this.platform.log.error('Error getting current pool data: ' + error);
+      });
+    }, 60000 * (this.platform.config.refreshInterval || 30));
   }
 
   /** Handle requests to get the current value of the CurrentTemperature characteristic. */
