@@ -23,6 +23,9 @@ export class WeatherAccessory {
             // set accessory information
             this.accessory.getService(this.platform.Service.AccessoryInformation)!
               .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot');
+              .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device?.hw_type ?? 'BlueConnect')
+              .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
+              .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.blue_device?.fw_version_psoc ?? '');
 
             this.service = this.accessory.getService(
               this.platform.Service.TemperatureSensor) || this.accessory.addService(this.platform.Service.TemperatureSensor,
